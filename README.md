@@ -2,9 +2,33 @@
 
 An interactive implementation of genetic/evolution algorithms with a user-friendly interface, inspired by Andrzej Dragan's "Quo vAIdis".
 
+## 🚀 Quick Start Options
+
+### Option 1: Pure Frontend (No Installation Required!) 🌐
+
+Simply open `index.html` in your browser - no installation, no dependencies!
+
+**Features:**
+- Pure HTML/CSS/JavaScript - runs entirely in browser
+- No backend server needed
+- Interactive charts with Chart.js
+- Beautiful responsive UI with Bootstrap
+- Instant startup
+
+**Just double-click `index.html` or run:**
+```bash
+open index.html  # macOS
+xdg-open index.html  # Linux
+start index.html  # Windows
+```
+
+### Option 2: Python/Streamlit Version (Full Features) 🐍
+
+More powerful version with additional analysis tools.
+
 ## Features
 
-- **Interactive UI**: Streamlit-based interface for easy parameter configuration
+- **Interactive UI**: Both Streamlit and pure frontend versions
 - **Multiple Problem Types**:
   - String Matching: Evolve a string to match a target
   - Function Optimization: Minimize mathematical functions (Sphere, Rastrigin)
@@ -12,8 +36,9 @@ An interactive implementation of genetic/evolution algorithms with a user-friend
 - **Real-time Visualization**: Watch evolution progress with live charts
 - **Configurable Parameters**: Control all aspects of the evolution process
 - **Statistical Analysis**: Track fitness, diversity, and convergence
+- **Pure Frontend Option**: No installation required!
 
-## Installation
+## Installation (Python Version Only)
 
 1. Clone or navigate to this repository:
 ```bash
@@ -139,12 +164,14 @@ Maximize the number of 1s in a binary string
 
 ```
 evolution/
-├── evolution.py         # Core algorithm implementation
+├── index.html          # 🌐 Pure frontend version (standalone, no dependencies!)
+├── evolution.py        # Core algorithm implementation (Python)
 │   ├── EvolutionConfig  # Configuration dataclass
 │   ├── Individual       # Represents a single solution
 │   ├── EvolutionAlgorithm # Main algorithm class
 │   └── Problem classes  # Example problems
-├── app.py              # Streamlit UI application
+├── app.py              # Streamlit UI application (Python)
+├── example.py          # Command-line examples (Python)
 ├── requirements.txt    # Python dependencies
 └── README.md          # This file
 ```
