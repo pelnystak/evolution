@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧬 Evolution Algorithm Explorer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .main-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+        .header h1 {
+            color: #667eea;
+            font-weight: bold;
+        }
+        .control-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .stats-card h3 {
+            font-size: 2rem;
+            margin: 0;
+        }
+        .stats-card p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        .btn-run {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .btn-run:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-stop {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            padding: 12px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .progress {
+            height: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        .solution-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            word-break: break-all;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 20px;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        .form-range {
+            cursor: pointer;
+        }
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container main-container">
+        <div class="header">
+            <h1>🧬 Evolution Algorithm Explorer</h1>
+            <p class="lead">Interactive Genetic Algorithm Visualization</p>
+            <p class="text-muted">Inspired by Andrzej Dragan's "Quo vAIdis"</p>
+        </div>
+
+        <div class="row">
+            <!-- Controls -->
+            <div class="col-md-4">
+                <div class="control-panel">
+                    <h4 class="mb-3">⚙️ Configuration</h4>
+
+                    <!-- Problem Type -->
+                    <div class="mb-3">
+                        <label class="form-label">Problem Type</label>
+                        <select id="problemType" class="form-select">
+                            <option value="string">String Matching</option>
+                            <option value="binary">Binary Optimization (OneMax)</option>
+                            <option value="function">Function Optimization</option>
+                        </select>
+                    </div>
+
+                    <!-- Problem Config -->
+                    <div id="stringConfig" class="mb-3">
+                        <label class="form-label">Target String</label>
+                        <input type="text" id="targetString" class="form-control" value="Hello Evolution!">
+                    </div>
+
+                    <div id="binaryConfig" class="mb-3" style="display: none;">
+                        <label class="form-label">Binary Length: <span id="binaryLengthVal">50</span></label>
+                        <input type="range" id="binaryLength" class="form-range" min="10" max="100" value="50">
+                    </div>
+
+                    <div id="functionConfig" class="mb-3" style="display: none;">
+                        <label class="form-label">Dimension: <span id="dimensionVal">2</span></label>
+                        <input type="range" id="dimension" class="form-range" min="2" max="5" value="2">
+                    </div>
+
+                    <!-- Population -->
+                    <div class="mb-3">
+                        <label class="form-label">Population Size: <span id="popSizeVal">100</span></label>
+                        <input type="range" id="populationSize" class="form-range" min="20" max="200" value="100">
+                    </div>
+
+                    <!-- Generations -->
+                    <div class="mb-3">
+                        <label class="form-label">Max Generations: <span id="maxGensVal">100</span></label>
+                        <input type="range" id="maxGenerations" class="form-range" min="20" max="500" value="100">
+                    </div>
+
+                    <!-- Mutation Rate -->
+                    <div class="mb-3">
+                        <label class="form-label">Mutation Rate: <span id="mutationVal">0.05</span></label>
+                        <input type="range" id="mutationRate" class="form-range" min="0.01" max="0.5" step="0.01" value="0.05">
+                    </div>
+
+                    <!-- Crossover Rate -->
+                    <div class="mb-3">
+                        <label class="form-label">Crossover Rate: <span id="crossoverVal">0.7</span></label>
+                        <input type="range" id="crossoverRate" class="form-range" min="0.5" max="1.0" step="0.05" value="0.7">
+                    </div>
+
+                    <!-- Elitism -->
+                    <div class="mb-3">
+                        <label class="form-label">Elitism: <span id="elitismVal">2</span></label>
+                        <input type="range" id="elitism" class="form-range" min="0" max="10" value="2">
+                    </div>
+
+                    <!-- Selection Method -->
+                    <div class="mb-3">
+                        <label class="form-label">Selection Method</label>
+                        <select id="selectionMethod" class="form-select">
+                            <option value="tournament">Tournament</option>
+                            <option value="roulette">Roulette Wheel</option>
+                        </select>
+                    </div>
+
+                    <!-- Speed -->
+                    <div class="mb-3">
+                        <label class="form-label">Visualization Speed</label>
+                        <select id="speed" class="form-select">
+                            <option value="1">Slow (Every Gen)</option>
+                            <option value="5" selected>Medium (Every 5 Gens)</option>
+                            <option value="10">Fast (Every 10 Gens)</option>
+                            <option value="0">Instant (No Animation)</option>
+                        </select>
+                    </div>
+
+                    <!-- Run Button -->
+                    <div class="d-grid gap-2">
+                        <button id="runBtn" class="btn btn-primary btn-run">▶️ Run Evolution</button>
+                        <button id="stopBtn" class="btn btn-danger btn-stop" style="display: none;">⏹️ Stop</button>
+                    </div>
+                </div>
+
+                <!-- Info Box -->
+                <div class="info-box">
+                    <strong>💡 Quick Tips:</strong>
+                    <ul class="small mb-0 mt-2">
+                        <li>Higher mutation = more exploration</li>
+                        <li>Larger population = better solutions</li>
+                        <li>Elitism preserves best individuals</li>
+                        <li>Try different selection methods!</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="col-md-8">
+                <!-- Statistics -->
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <h3 id="genStat">0</h3>
+                            <p>Generation</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <h3 id="bestFitnessStat">0.00</h3>
+                            <p>Best Fitness</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <h3 id="avgFitnessStat">0.00</h3>
+                            <p>Avg Fitness</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <h3 id="progressStat">0%</h3>
+                            <p>Progress</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress mb-3">
+                    <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated"
+                         role="progressbar" style="width: 0%">0%</div>
+                </div>
+
+                <!-- Best Solution -->
+                <div class="mb-3">
+                    <h5>🏆 Best Solution</h5>
+                    <div id="bestSolution" class="solution-display">
+                        Ready to evolve...
+                    </div>
+                </div>
+
+                <!-- Chart -->
+                <div class="chart-container">
+                    <canvas id="fitnessChart"></canvas>
+                </div>
+
+                <!-- Status Messages -->
+                <div id="statusMessage" class="alert alert-info mt-3" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Evolution Algorithm Implementation
+        class Individual {
+            constructor(genome) {
+                this.genome = genome;
+                this.fitness = 0;
+            }
+        }
+
+        class EvolutionAlgorithm {
+            constructor(config) {
+                this.config = config;
+                this.population = [];
+                this.generation = 0;
+                this.bestIndividual = null;
+                this.history = {
+                    bestFitness: [],
+                    avgFitness: [],
+                    generation: []
+                };
+                this.running = false;
+            }
+
+            initialize(genomeFactory) {
+                this.population = [];
+                for (let i = 0; i < this.config.populationSize; i++) {
+                    this.population.push(new Individual(genomeFactory()));
+                }
+                this.generation = 0;
+                this.history = { bestFitness: [], avgFitness: [], generation: [] };
+            }
+
+            evaluateFitness(fitnessFunc) {
+                for (let ind of this.population) {
+                    ind.fitness = fitnessFunc(ind.genome);
+                }
+                this.population.sort((a, b) => b.fitness - a.fitness);
+
+                if (!this.bestIndividual || this.population[0].fitness > this.bestIndividual.fitness) {
+                    this.bestIndividual = new Individual(
+                        JSON.parse(JSON.stringify(this.population[0].genome))
+                    );
+                    this.bestIndividual.fitness = this.population[0].fitness;
+                }
+            }
+
+            selectTournament() {
+                let best = null;
+                for (let i = 0; i < 3; i++) {
+                    const ind = this.population[Math.floor(Math.random() * this.population.length)];
+                    if (!best || ind.fitness > best.fitness) {
+                        best = ind;
+                    }
+                }
+                return best;
+            }
+
+            selectRoulette() {
+                const totalFitness = this.population.reduce((sum, ind) => sum + Math.max(0, ind.fitness), 0);
+                if (totalFitness === 0) {
+                    return this.population[Math.floor(Math.random() * this.population.length)];
+                }
+
+                let pick = Math.random() * totalFitness;
+                let current = 0;
+                for (let ind of this.population) {
+                    current += Math.max(0, ind.fitness);
+                    if (current >= pick) {
+                        return ind;
+                    }
+                }
+                return this.population[this.population.length - 1];
+            }
+
+            crossover(parent1, parent2, crossoverFunc) {
+                if (Math.random() < this.config.crossoverRate) {
+                    return crossoverFunc(parent1.genome, parent2.genome);
+                }
+                return [parent1.genome, parent2.genome];
+            }
+
+            mutate(genome, mutateFunc) {
+                if (Math.random() < this.config.mutationRate) {
+                    return mutateFunc(genome);
+                }
+                return genome;
+            }
+
+            async evolveGeneration(fitnessFunc, mutateFunc, crossoverFunc, callback) {
+                this.evaluateFitness(fitnessFunc);
+
+                const fitnesses = this.population.map(ind => ind.fitness);
+                const stats = {
+                    generation: this.generation,
+                    bestFitness: Math.max(...fitnesses),
+                    avgFitness: fitnesses.reduce((a, b) => a + b, 0) / fitnesses.length,
+                    bestGenome: this.bestIndividual.genome
+                };
+
+                this.history.generation.push(this.generation);
+                this.history.bestFitness.push(stats.bestFitness);
+                this.history.avgFitness.push(stats.avgFitness);
+
+                if (callback) {
+                    await callback(stats);
+                }
+
+                // Create new population
+                const newPopulation = [];
+
+                // Elitism
+                for (let i = 0; i < this.config.elitism && i < this.population.length; i++) {
+                    newPopulation.push(new Individual(
+                        JSON.parse(JSON.stringify(this.population[i].genome))
+                    ));
+                }
+
+                // Selection method
+                const selectFunc = this.config.selectionMethod === 'tournament'
+                    ? () => this.selectTournament()
+                    : () => this.selectRoulette();
+
+                // Generate offspring
+                while (newPopulation.length < this.config.populationSize) {
+                    const parent1 = selectFunc();
+                    const parent2 = selectFunc();
+
+                    const [child1Genome, child2Genome] = this.crossover(parent1, parent2, crossoverFunc);
+
+                    const mutatedChild1 = this.mutate(child1Genome, mutateFunc);
+                    const mutatedChild2 = this.mutate(child2Genome, mutateFunc);
+
+                    newPopulation.push(new Individual(mutatedChild1));
+                    if (newPopulation.length < this.config.populationSize) {
+                        newPopulation.push(new Individual(mutatedChild2));
+                    }
+                }
+
+                this.population = newPopulation.slice(0, this.config.populationSize);
+                this.generation++;
+
+                return stats;
+            }
+
+            async run(fitnessFunc, mutateFunc, crossoverFunc, genomeFactory, callback) {
+                this.initialize(genomeFactory);
+                this.running = true;
+
+                for (let gen = 0; gen < this.config.maxGenerations && this.running; gen++) {
+                    await this.evolveGeneration(fitnessFunc, mutateFunc, crossoverFunc, callback);
+                }
+
+                return this.bestIndividual;
+            }
+
+            stop() {
+                this.running = false;
+            }
+        }
+
+        // Problem Implementations
+        const problems = {
+            string: {
+                charset: ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!?.,;:',
+                target: 'Hello Evolution!',
+
+                createGenome() {
+                    let genome = '';
+                    for (let i = 0; i < this.target.length; i++) {
+                        genome += this.charset[Math.floor(Math.random() * this.charset.length)];
+                    }
+                    return genome;
+                },
+
+                fitness(genome) {
+                    let score = 0;
+                    for (let i = 0; i < genome.length; i++) {
+                        if (genome[i] === this.target[i]) score++;
+                    }
+                    return score;
+                },
+
+                mutate(genome) {
+                    const arr = genome.split('');
+                    const idx = Math.floor(Math.random() * arr.length);
+                    arr[idx] = this.charset[Math.floor(Math.random() * this.charset.length)];
+                    return arr.join('');
+                },
+
+                crossover(g1, g2) {
+                    const point = Math.floor(Math.random() * (g1.length - 1)) + 1;
+                    return [
+                        g1.slice(0, point) + g2.slice(point),
+                        g2.slice(0, point) + g1.slice(point)
+                    ];
+                },
+
+                maxFitness() {
+                    return this.target.length;
+                }
+            },
+
+            binary: {
+                length: 50,
+
+                createGenome() {
+                    const genome = [];
+                    for (let i = 0; i < this.length; i++) {
+                        genome.push(Math.random() < 0.5 ? 0 : 1);
+                    }
+                    return genome;
+                },
+
+                fitness(genome) {
+                    return genome.reduce((sum, bit) => sum + bit, 0);
+                },
+
+                mutate(genome) {
+                    const copy = [...genome];
+                    const idx = Math.floor(Math.random() * copy.length);
+                    copy[idx] = 1 - copy[idx];
+                    return copy;
+                },
+
+                crossover(g1, g2) {
+                    const point = Math.floor(Math.random() * (g1.length - 1)) + 1;
+                    return [
+                        [...g1.slice(0, point), ...g2.slice(point)],
+                        [...g2.slice(0, point), ...g1.slice(point)]
+                    ];
+                },
+
+                maxFitness() {
+                    return this.length;
+                }
+            },
+
+            function: {
+                dimension: 2,
+                bounds: [-5, 5],
+
+                createGenome() {
+                    const genome = [];
+                    for (let i = 0; i < this.dimension; i++) {
+                        genome.push(Math.random() * (this.bounds[1] - this.bounds[0]) + this.bounds[0]);
+                    }
+                    return genome;
+                },
+
+                fitness(genome) {
+                    // Sphere function (minimize, so negate)
+                    const sum = genome.reduce((acc, x) => acc + x * x, 0);
+                    return -sum;
+                },
+
+                mutate(genome) {
+                    const copy = [...genome];
+                    const idx = Math.floor(Math.random() * copy.length);
+                    copy[idx] += (Math.random() - 0.5) * 2;
+                    copy[idx] = Math.max(this.bounds[0], Math.min(this.bounds[1], copy[idx]));
+                    return copy;
+                },
+
+                crossover(g1, g2) {
+                    const alpha = Math.random();
+                    return [
+                        g1.map((x, i) => alpha * x + (1 - alpha) * g2[i]),
+                        g1.map((x, i) => (1 - alpha) * x + alpha * g2[i])
+                    ];
+                },
+
+                maxFitness() {
+                    return 0; // Optimal for sphere function
+                }
+            }
+        };
+
+        // UI Controller
+        let evolution = null;
+        let chart = null;
+
+        function initChart() {
+            const ctx = document.getElementById('fitnessChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Best Fitness',
+                        data: [],
+                        borderColor: 'rgb(102, 126, 234)',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Average Fitness',
+                        data: [],
+                        borderColor: 'rgb(118, 75, 162)',
+                        backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Evolution Progress',
+                            font: { size: 16, weight: 'bold' }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Fitness'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Generation'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart(generation, bestFitness, avgFitness) {
+            chart.data.labels.push(generation);
+            chart.data.datasets[0].data.push(bestFitness);
+            chart.data.datasets[1].data.push(avgFitness);
+
+            // Keep only last 100 points for performance
+            if (chart.data.labels.length > 100) {
+                chart.data.labels.shift();
+                chart.data.datasets[0].data.shift();
+                chart.data.datasets[1].data.shift();
+            }
+
+            chart.update('none'); // Update without animation for performance
+        }
+
+        function displaySolution(genome, problemType) {
+            const display = document.getElementById('bestSolution');
+
+            if (problemType === 'string') {
+                display.textContent = genome;
+            } else if (problemType === 'binary') {
+                const str = genome.join('');
+                display.textContent = str.length > 100 ? str.slice(0, 100) + '...' : str;
+            } else if (problemType === 'function') {
+                display.textContent = `[${genome.map(x => x.toFixed(4)).join(', ')}]`;
+            }
+        }
+
+        async function runEvolution() {
+            const problemType = document.getElementById('problemType').value;
+            const problem = problems[problemType];
+
+            // Update problem configuration
+            if (problemType === 'string') {
+                problem.target = document.getElementById('targetString').value;
+            } else if (problemType === 'binary') {
+                problem.length = parseInt(document.getElementById('binaryLength').value);
+            } else if (problemType === 'function') {
+                problem.dimension = parseInt(document.getElementById('dimension').value);
+            }
+
+            const config = {
+                populationSize: parseInt(document.getElementById('populationSize').value),
+                maxGenerations: parseInt(document.getElementById('maxGenerations').value),
+                mutationRate: parseFloat(document.getElementById('mutationRate').value),
+                crossoverRate: parseFloat(document.getElementById('crossoverRate').value),
+                elitism: parseInt(document.getElementById('elitism').value),
+                selectionMethod: document.getElementById('selectionMethod').value
+            };
+
+            const speed = parseInt(document.getElementById('speed').value);
+
+            // Reset chart
+            chart.data.labels = [];
+            chart.data.datasets[0].data = [];
+            chart.data.datasets[1].data = [];
+            chart.update();
+
+            // UI updates
+            document.getElementById('runBtn').style.display = 'none';
+            document.getElementById('stopBtn').style.display = 'block';
+            document.getElementById('statusMessage').style.display = 'none';
+
+            evolution = new EvolutionAlgorithm(config);
+
+            let updateCounter = 0;
+            const callback = async (stats) => {
+                updateCounter++;
+
+                const shouldUpdate = speed === 0 || updateCounter % speed === 0;
+
+                if (shouldUpdate) {
+                    // Update stats
+                    document.getElementById('genStat').textContent = stats.generation;
+                    document.getElementById('bestFitnessStat').textContent = stats.bestFitness.toFixed(2);
+                    document.getElementById('avgFitnessStat').textContent = stats.avgFitness.toFixed(2);
+
+                    const progress = (stats.generation / config.maxGenerations) * 100;
+                    document.getElementById('progressBar').style.width = progress + '%';
+                    document.getElementById('progressBar').textContent = Math.round(progress) + '%';
+
+                    const maxFit = problem.maxFitness();
+                    if (maxFit !== 0) {
+                        const successPct = problemType === 'function'
+                            ? Math.max(0, 100 + (stats.bestFitness / Math.abs(maxFit)) * 100)
+                            : (stats.bestFitness / maxFit) * 100;
+                        document.getElementById('progressStat').textContent = Math.round(successPct) + '%';
+                    } else {
+                        document.getElementById('progressStat').textContent = '—';
+                    }
+
+                    displaySolution(stats.bestGenome, problemType);
+                    updateChart(stats.generation, stats.bestFitness, stats.avgFitness);
+
+                    // Allow UI to update
+                    if (speed > 0) {
+                        await new Promise(resolve => setTimeout(resolve, 10));
+                    }
+                }
+            };
+
+            const startTime = Date.now();
+
+            await evolution.run(
+                problem.fitness.bind(problem),
+                problem.mutate.bind(problem),
+                problem.crossover.bind(problem),
+                problem.createGenome.bind(problem),
+                callback
+            );
+
+            const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+
+            // Final update
+            document.getElementById('runBtn').style.display = 'block';
+            document.getElementById('stopBtn').style.display = 'none';
+
+            const msg = document.getElementById('statusMessage');
+            msg.className = 'alert alert-success mt-3';
+            msg.textContent = `Evolution completed in ${elapsed}s! Best fitness: ${evolution.bestIndividual.fitness.toFixed(4)}`;
+            msg.style.display = 'block';
+        }
+
+        function stopEvolution() {
+            if (evolution) {
+                evolution.stop();
+            }
+            document.getElementById('runBtn').style.display = 'block';
+            document.getElementById('stopBtn').style.display = 'none';
+
+            const msg = document.getElementById('statusMessage');
+            msg.className = 'alert alert-warning mt-3';
+            msg.textContent = 'Evolution stopped by user.';
+            msg.style.display = 'block';
+        }
+
+        // Event Listeners
+        document.getElementById('runBtn').addEventListener('click', runEvolution);
+        document.getElementById('stopBtn').addEventListener('click', stopEvolution);
+
+        document.getElementById('problemType').addEventListener('change', (e) => {
+            document.getElementById('stringConfig').style.display = e.target.value === 'string' ? 'block' : 'none';
+            document.getElementById('binaryConfig').style.display = e.target.value === 'binary' ? 'block' : 'none';
+            document.getElementById('functionConfig').style.display = e.target.value === 'function' ? 'block' : 'none';
+        });
+
+        // Update value displays
+        const sliders = [
+            ['populationSize', 'popSizeVal'],
+            ['maxGenerations', 'maxGensVal'],
+            ['mutationRate', 'mutationVal'],
+            ['crossoverRate', 'crossoverVal'],
+            ['elitism', 'elitismVal'],
+            ['binaryLength', 'binaryLengthVal'],
+            ['dimension', 'dimensionVal']
+        ];
+
+        sliders.forEach(([sliderId, displayId]) => {
+            const slider = document.getElementById(sliderId);
+            const display = document.getElementById(displayId);
+            if (slider && display) {
+                slider.addEventListener('input', (e) => {
+                    display.textContent = e.target.value;
+                });
+            }
+        });
+
+        // Initialize
+        window.addEventListener('load', () => {
+            initChart();
+        });
+    </script>
+</body>
+</html>
