@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧬 Evolution Algorithm Explorer</title>
+    <title>🧬 Evolution Simulator - Watch Life Evolve!</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
@@ -11,242 +11,240 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         .main-container {
             background: white;
-            border-radius: 15px;
+            border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
         }
         .header {
             text-align: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 3px solid #667eea;
+            border-bottom: 4px solid #667eea;
         }
         .header h1 {
             color: #667eea;
             font-weight: bold;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .world-canvas-container {
+            position: relative;
+            background: linear-gradient(180deg, #87ceeb 0%, #98d8c8 100%);
+            border-radius: 15px;
+            padding: 10px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.2);
+        }
+        #worldCanvas {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            width: 100%;
+            height: 500px;
+            cursor: pointer;
+        }
+        .speed-control {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.3);
+        }
+        .speed-control h4 {
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .speed-slider {
+            height: 15px;
+            border-radius: 10px;
+        }
+        .speed-slider::-webkit-slider-thumb {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        .speed-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
         }
         .control-panel {
             background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
+            padding: 25px;
+            border-radius: 15px;
             margin-bottom: 20px;
         }
         .stats-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
             text-align: center;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            transition: transform 0.2s;
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
         }
         .stats-card h3 {
-            font-size: 2rem;
+            font-size: 2.5rem;
             margin: 0;
+            font-weight: bold;
         }
         .stats-card p {
-            margin: 0;
-            opacity: 0.9;
+            margin: 5px 0 0 0;
+            opacity: 0.95;
+            font-size: 1.1rem;
         }
         .btn-run {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
-            padding: 12px 40px;
-            font-size: 1.2rem;
+            padding: 15px 50px;
+            font-size: 1.4rem;
             font-weight: bold;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s;
         }
         .btn-run:hover {
             transform: scale(1.05);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
         }
         .btn-stop {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             border: none;
-            padding: 12px 40px;
-            font-size: 1.2rem;
+            padding: 15px 50px;
+            font-size: 1.4rem;
             font-weight: bold;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);
         }
         .progress {
-            height: 30px;
-            font-size: 1rem;
+            height: 35px;
+            font-size: 1.1rem;
             font-weight: bold;
+            border-radius: 20px;
+            overflow: hidden;
         }
         .solution-display {
             background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
+            padding: 20px;
+            border-radius: 15px;
             font-family: 'Courier New', monospace;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             word-break: break-all;
-            min-height: 60px;
+            min-height: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
+            border: 3px solid #667eea;
         }
         .chart-container {
             position: relative;
-            height: 400px;
+            height: 350px;
             margin-top: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         .form-label {
-            font-weight: 600;
+            font-weight: 700;
             color: #495057;
+            margin-bottom: 8px;
         }
-        .form-range {
-            cursor: pointer;
-        }
-        .info-box {
-            background: #e7f3ff;
-            border-left: 4px solid #667eea;
+        .legend-box {
+            background: rgba(255,255,255,0.95);
+            border: 2px solid #667eea;
+            border-radius: 10px;
             padding: 15px;
-            border-radius: 5px;
-            margin-top: 20px;
+            margin-top: 15px;
         }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 15px;
+            border: 2px solid #333;
+        }
+        .action-log {
+            background: rgba(0,0,0,0.05);
+            border-radius: 10px;
+            padding: 15px;
+            height: 150px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+        .action-log-entry {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .action-fight { background: rgba(255, 0, 0, 0.1); }
+        .action-mate { background: rgba(255, 192, 203, 0.2); }
+        .action-mutate { background: rgba(255, 165, 0, 0.1); }
+        .action-evolve { background: rgba(0, 255, 0, 0.1); }
     </style>
 </head>
 <body>
-    <div class="container main-container">
+    <div class="container-fluid main-container">
         <div class="header">
-            <h1>🧬 Evolution Algorithm Explorer</h1>
-            <p class="lead">Interactive Genetic Algorithm Visualization</p>
+            <h1>🧬 Evolution Simulator</h1>
+            <p class="lead">Watch Life Fight, Mate, and Evolve!</p>
             <p class="text-muted">Inspired by Andrzej Dragan's "Quo vAIdis"</p>
         </div>
 
         <div class="row">
-            <!-- Controls -->
-            <div class="col-md-4">
-                <div class="control-panel">
-                    <h4 class="mb-3">⚙️ Configuration</h4>
-
-                    <!-- Problem Type -->
-                    <div class="mb-3">
-                        <label class="form-label">Problem Type</label>
-                        <select id="problemType" class="form-select">
-                            <option value="string">String Matching</option>
-                            <option value="binary">Binary Optimization (OneMax)</option>
-                            <option value="function">Function Optimization</option>
-                        </select>
+            <!-- Left Panel - World & Controls -->
+            <div class="col-lg-8">
+                <!-- Speed Control (Prominent!) -->
+                <div class="speed-control">
+                    <h4>⚡ EVOLUTION SPEED</h4>
+                    <input type="range" id="speedControl" class="form-range speed-slider"
+                           min="0" max="4" value="2" step="1">
+                    <div class="speed-labels">
+                        <span>🐌 Slow</span>
+                        <span>🚶 Normal</span>
+                        <span>🏃 Fast</span>
+                        <span>🚀 Turbo</span>
+                        <span>⚡ Instant</span>
                     </div>
-
-                    <!-- Problem Config -->
-                    <div id="stringConfig" class="mb-3">
-                        <label class="form-label">Target String</label>
-                        <input type="text" id="targetString" class="form-control" value="Hello Evolution!">
-                    </div>
-
-                    <div id="binaryConfig" class="mb-3" style="display: none;">
-                        <label class="form-label">Binary Length: <span id="binaryLengthVal">50</span></label>
-                        <input type="range" id="binaryLength" class="form-range" min="10" max="100" value="50">
-                    </div>
-
-                    <div id="functionConfig" class="mb-3" style="display: none;">
-                        <label class="form-label">Dimension: <span id="dimensionVal">2</span></label>
-                        <input type="range" id="dimension" class="form-range" min="2" max="5" value="2">
-                    </div>
-
-                    <!-- Population -->
-                    <div class="mb-3">
-                        <label class="form-label">Population Size: <span id="popSizeVal">100</span></label>
-                        <input type="range" id="populationSize" class="form-range" min="20" max="200" value="100">
-                    </div>
-
-                    <!-- Generations -->
-                    <div class="mb-3">
-                        <label class="form-label">Max Generations: <span id="maxGensVal">100</span></label>
-                        <input type="range" id="maxGenerations" class="form-range" min="20" max="500" value="100">
-                    </div>
-
-                    <!-- Mutation Rate -->
-                    <div class="mb-3">
-                        <label class="form-label">Mutation Rate: <span id="mutationVal">0.05</span></label>
-                        <input type="range" id="mutationRate" class="form-range" min="0.01" max="0.5" step="0.01" value="0.05">
-                    </div>
-
-                    <!-- Crossover Rate -->
-                    <div class="mb-3">
-                        <label class="form-label">Crossover Rate: <span id="crossoverVal">0.7</span></label>
-                        <input type="range" id="crossoverRate" class="form-range" min="0.5" max="1.0" step="0.05" value="0.7">
-                    </div>
-
-                    <!-- Elitism -->
-                    <div class="mb-3">
-                        <label class="form-label">Elitism: <span id="elitismVal">2</span></label>
-                        <input type="range" id="elitism" class="form-range" min="0" max="10" value="2">
-                    </div>
-
-                    <!-- Selection Method -->
-                    <div class="mb-3">
-                        <label class="form-label">Selection Method</label>
-                        <select id="selectionMethod" class="form-select">
-                            <option value="tournament">Tournament</option>
-                            <option value="roulette">Roulette Wheel</option>
-                        </select>
-                    </div>
-
-                    <!-- Speed -->
-                    <div class="mb-3">
-                        <label class="form-label">Visualization Speed</label>
-                        <select id="speed" class="form-select">
-                            <option value="1">Slow (Every Gen)</option>
-                            <option value="5" selected>Medium (Every 5 Gens)</option>
-                            <option value="10">Fast (Every 10 Gens)</option>
-                            <option value="0">Instant (No Animation)</option>
-                        </select>
-                    </div>
-
-                    <!-- Run Button -->
-                    <div class="d-grid gap-2">
-                        <button id="runBtn" class="btn btn-primary btn-run">▶️ Run Evolution</button>
-                        <button id="stopBtn" class="btn btn-danger btn-stop" style="display: none;">⏹️ Stop</button>
+                    <div class="text-center mt-2" style="font-size: 1.2rem;">
+                        <strong id="speedLabel">Normal Speed</strong>
                     </div>
                 </div>
 
-                <!-- Info Box -->
-                <div class="info-box">
-                    <strong>💡 Quick Tips:</strong>
-                    <ul class="small mb-0 mt-2">
-                        <li>Higher mutation = more exploration</li>
-                        <li>Larger population = better solutions</li>
-                        <li>Elitism preserves best individuals</li>
-                        <li>Try different selection methods!</li>
-                    </ul>
+                <!-- World Canvas -->
+                <div class="world-canvas-container">
+                    <canvas id="worldCanvas" width="800" height="500"></canvas>
                 </div>
-            </div>
 
-            <!-- Results -->
-            <div class="col-md-8">
-                <!-- Statistics -->
-                <div class="row mb-3">
-                    <div class="col-md-3">
-                        <div class="stats-card">
-                            <h3 id="genStat">0</h3>
-                            <p>Generation</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stats-card">
-                            <h3 id="bestFitnessStat">0.00</h3>
-                            <p>Best Fitness</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stats-card">
-                            <h3 id="avgFitnessStat">0.00</h3>
-                            <p>Avg Fitness</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stats-card">
-                            <h3 id="progressStat">0%</h3>
-                            <p>Progress</p>
-                        </div>
-                    </div>
+                <!-- Action Log -->
+                <div class="action-log" id="actionLog">
+                    <strong>📜 Evolution Log:</strong>
+                    <div id="logEntries"></div>
                 </div>
 
                 <!-- Progress Bar -->
-                <div class="progress mb-3">
+                <div class="progress mb-3 mt-3">
                     <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated"
                          role="progressbar" style="width: 0%">0%</div>
                 </div>
@@ -255,7 +253,108 @@
                 <div class="mb-3">
                     <h5>🏆 Best Solution</h5>
                     <div id="bestSolution" class="solution-display">
-                        Ready to evolve...
+                        Click RUN to start evolution!
+                    </div>
+                </div>
+
+                <!-- Run Button -->
+                <div class="d-grid gap-2">
+                    <button id="runBtn" class="btn btn-primary btn-run">▶️ START EVOLUTION</button>
+                    <button id="stopBtn" class="btn btn-danger btn-stop" style="display: none;">⏹️ STOP</button>
+                </div>
+            </div>
+
+            <!-- Right Panel - Stats & Controls -->
+            <div class="col-lg-4">
+                <!-- Statistics -->
+                <h4 class="mb-3">📊 Statistics</h4>
+                <div class="stats-card">
+                    <h3 id="genStat">0</h3>
+                    <p>Generation</p>
+                </div>
+                <div class="stats-card">
+                    <h3 id="bestFitnessStat">0.00</h3>
+                    <p>Best Fitness</p>
+                </div>
+                <div class="stats-card">
+                    <h3 id="avgFitnessStat">0.00</h3>
+                    <p>Avg Fitness</p>
+                </div>
+                <div class="stats-card">
+                    <h3 id="progressStat">0%</h3>
+                    <p>Progress</p>
+                </div>
+
+                <!-- Configuration -->
+                <div class="control-panel mt-4">
+                    <h4 class="mb-3">⚙️ Configuration</h4>
+
+                    <div class="mb-3">
+                        <label class="form-label">Problem Type</label>
+                        <select id="problemType" class="form-select">
+                            <option value="string">🔤 String Evolution</option>
+                            <option value="binary">💻 Binary Optimization</option>
+                            <option value="function">📈 Function Optimization</option>
+                        </select>
+                    </div>
+
+                    <div id="stringConfig" class="mb-3">
+                        <label class="form-label">Target String</label>
+                        <input type="text" id="targetString" class="form-control" value="HELLO WORLD">
+                    </div>
+
+                    <div id="binaryConfig" class="mb-3" style="display: none;">
+                        <label class="form-label">Binary Length: <span id="binaryLengthVal">50</span></label>
+                        <input type="range" id="binaryLength" class="form-range" min="20" max="100" value="50">
+                    </div>
+
+                    <div id="functionConfig" class="mb-3" style="display: none;">
+                        <label class="form-label">Dimension: <span id="dimensionVal">2</span></label>
+                        <input type="range" id="dimension" class="form-range" min="2" max="5" value="2">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Population: <span id="popSizeVal">50</span></label>
+                        <input type="range" id="populationSize" class="form-range" min="20" max="100" value="50">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Generations: <span id="maxGensVal">200</span></label>
+                        <input type="range" id="maxGenerations" class="form-range" min="50" max="1000" value="200">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Mutation: <span id="mutationVal">0.05</span></label>
+                        <input type="range" id="mutationRate" class="form-range" min="0.01" max="0.3" step="0.01" value="0.05">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Crossover: <span id="crossoverVal">0.7</span></label>
+                        <input type="range" id="crossoverRate" class="form-range" min="0.5" max="1.0" step="0.05" value="0.7">
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="legend-box">
+                    <h5>🎨 Legend</h5>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #ff0000, #ff6666);"></div>
+                        <div>Low Fitness</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #ffff00, #ffff66);"></div>
+                        <div>Medium Fitness</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: linear-gradient(135deg, #00ff00, #66ff66);"></div>
+                        <div>High Fitness</div>
+                    </div>
+                    <div class="mt-3">
+                        <strong>Animations:</strong><br>
+                        💥 Fighting = Selection<br>
+                        💖 Mating = Crossover<br>
+                        ✨ Sparkles = Mutation<br>
+                        🍽️ Growing = Eating/Fitness
                     </div>
                 </div>
 
@@ -263,15 +362,105 @@
                 <div class="chart-container">
                     <canvas id="fitnessChart"></canvas>
                 </div>
-
-                <!-- Status Messages -->
-                <div id="statusMessage" class="alert alert-info mt-3" style="display: none;"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // Evolution Algorithm Implementation
+        // Creature/Organism class
+        class Creature {
+            constructor(genome, x, y) {
+                this.genome = genome;
+                this.fitness = 0;
+                this.x = x;
+                this.y = y;
+                this.targetX = x;
+                this.targetY = y;
+                this.size = 15;
+                this.angle = Math.random() * Math.PI * 2;
+                this.animationState = 'idle'; // idle, fighting, mating, mutating, eating
+                this.animationProgress = 0;
+            }
+
+            update() {
+                // Move towards target
+                const dx = this.targetX - this.x;
+                const dy = this.targetY - this.y;
+                this.x += dx * 0.1;
+                this.y += dy * 0.1;
+
+                // Update animation
+                if (this.animationState !== 'idle') {
+                    this.animationProgress += 0.05;
+                    if (this.animationProgress >= 1) {
+                        this.animationState = 'idle';
+                        this.animationProgress = 0;
+                    }
+                }
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+
+                // Color based on fitness (normalized 0-1)
+                const hue = this.fitness * 120; // 0 = red, 120 = green
+                const brightness = 50 + this.fitness * 30;
+                ctx.fillStyle = `hsl(${hue}, 80%, ${brightness}%)`;
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+
+                // Size based on fitness
+                const drawSize = this.size + this.fitness * 5;
+
+                // Animation effects
+                if (this.animationState === 'fighting') {
+                    ctx.rotate(Math.sin(this.animationProgress * Math.PI * 4) * 0.5);
+                    ctx.globalAlpha = 0.8 + Math.sin(this.animationProgress * Math.PI * 2) * 0.2;
+                } else if (this.animationState === 'mating') {
+                    const pulse = 1 + Math.sin(this.animationProgress * Math.PI * 2) * 0.3;
+                    ctx.scale(pulse, pulse);
+                    // Heart effect
+                    ctx.fillStyle = `rgba(255, 105, 180, ${1 - this.animationProgress})`;
+                } else if (this.animationState === 'mutating') {
+                    // Sparkle effect
+                    for (let i = 0; i < 6; i++) {
+                        const angle = (i / 6) * Math.PI * 2 + this.animationProgress * Math.PI * 2;
+                        const dist = 20 * this.animationProgress;
+                        ctx.fillStyle = `rgba(255, 255, 0, ${1 - this.animationProgress})`;
+                        ctx.beginPath();
+                        ctx.arc(Math.cos(angle) * dist, Math.sin(angle) * dist, 3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                } else if (this.animationState === 'eating') {
+                    const pulse = 1 + Math.sin(this.animationProgress * Math.PI * 4) * 0.2;
+                    ctx.scale(pulse, pulse);
+                }
+
+                // Draw creature body
+                ctx.beginPath();
+                ctx.arc(0, 0, drawSize, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Draw eyes
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(-5, -5, 4, 0, Math.PI * 2);
+                ctx.arc(5, -5, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(-5, -5, 2, 0, Math.PI * 2);
+                ctx.arc(5, -5, 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+            }
+        }
+
+        // Evolution Algorithm
         class Individual {
             constructor(genome) {
                 this.genome = genome;
@@ -283,28 +472,33 @@
             constructor(config) {
                 this.config = config;
                 this.population = [];
+                this.creatures = [];
                 this.generation = 0;
                 this.bestIndividual = null;
-                this.history = {
-                    bestFitness: [],
-                    avgFitness: [],
-                    generation: []
-                };
+                this.history = { bestFitness: [], avgFitness: [], generation: [] };
                 this.running = false;
             }
 
-            initialize(genomeFactory) {
+            initialize(genomeFactory, canvasWidth, canvasHeight) {
                 this.population = [];
+                this.creatures = [];
                 for (let i = 0; i < this.config.populationSize; i++) {
-                    this.population.push(new Individual(genomeFactory()));
+                    const genome = genomeFactory();
+                    this.population.push(new Individual(genome));
+
+                    const x = Math.random() * (canvasWidth - 60) + 30;
+                    const y = Math.random() * (canvasHeight - 60) + 30;
+                    this.creatures.push(new Creature(genome, x, y));
                 }
                 this.generation = 0;
                 this.history = { bestFitness: [], avgFitness: [], generation: [] };
             }
 
             evaluateFitness(fitnessFunc) {
-                for (let ind of this.population) {
-                    ind.fitness = fitnessFunc(ind.genome);
+                for (let i = 0; i < this.population.length; i++) {
+                    const fitness = fitnessFunc(this.population[i].genome);
+                    this.population[i].fitness = fitness;
+                    this.creatures[i].fitness = fitness;
                 }
                 this.population.sort((a, b) => b.fitness - a.fitness);
 
@@ -318,48 +512,30 @@
 
             selectTournament() {
                 let best = null;
+                let bestIdx = -1;
                 for (let i = 0; i < 3; i++) {
-                    const ind = this.population[Math.floor(Math.random() * this.population.length)];
+                    const idx = Math.floor(Math.random() * this.population.length);
+                    const ind = this.population[idx];
                     if (!best || ind.fitness > best.fitness) {
                         best = ind;
+                        bestIdx = idx;
                     }
                 }
-                return best;
+                return { individual: best, index: bestIdx };
             }
 
-            selectRoulette() {
-                const totalFitness = this.population.reduce((sum, ind) => sum + Math.max(0, ind.fitness), 0);
-                if (totalFitness === 0) {
-                    return this.population[Math.floor(Math.random() * this.population.length)];
-                }
-
-                let pick = Math.random() * totalFitness;
-                let current = 0;
-                for (let ind of this.population) {
-                    current += Math.max(0, ind.fitness);
-                    if (current >= pick) {
-                        return ind;
-                    }
-                }
-                return this.population[this.population.length - 1];
-            }
-
-            crossover(parent1, parent2, crossoverFunc) {
-                if (Math.random() < this.config.crossoverRate) {
-                    return crossoverFunc(parent1.genome, parent2.genome);
-                }
-                return [parent1.genome, parent2.genome];
-            }
-
-            mutate(genome, mutateFunc) {
-                if (Math.random() < this.config.mutationRate) {
-                    return mutateFunc(genome);
-                }
-                return genome;
-            }
-
-            async evolveGeneration(fitnessFunc, mutateFunc, crossoverFunc, callback) {
+            async evolveGeneration(fitnessFunc, mutateFunc, crossoverFunc, callback, animationSpeed) {
                 this.evaluateFitness(fitnessFunc);
+
+                // Eating animation
+                if (animationSpeed > 0) {
+                    for (let creature of this.creatures) {
+                        creature.animationState = 'eating';
+                        creature.animationProgress = 0;
+                    }
+                    await this.animateCreatures(30, animationSpeed);
+                    addLog('🍽️ Creatures evaluated fitness (eating)', 'evolve');
+                }
 
                 const fitnesses = this.population.map(ind => ind.fitness);
                 const stats = {
@@ -379,47 +555,106 @@
 
                 // Create new population
                 const newPopulation = [];
+                const newCreatures = [];
 
                 // Elitism
-                for (let i = 0; i < this.config.elitism && i < this.population.length; i++) {
+                for (let i = 0; i < 2 && i < this.population.length; i++) {
                     newPopulation.push(new Individual(
                         JSON.parse(JSON.stringify(this.population[i].genome))
                     ));
+                    const creature = new Creature(
+                        this.population[i].genome,
+                        this.creatures[i].x,
+                        this.creatures[i].y
+                    );
+                    creature.fitness = this.population[i].fitness;
+                    newCreatures.push(creature);
                 }
 
-                // Selection method
-                const selectFunc = this.config.selectionMethod === 'tournament'
-                    ? () => this.selectTournament()
-                    : () => this.selectRoulette();
-
-                // Generate offspring
+                // Generate offspring with animations
                 while (newPopulation.length < this.config.populationSize) {
-                    const parent1 = selectFunc();
-                    const parent2 = selectFunc();
+                    const parent1 = this.selectTournament();
+                    const parent2 = this.selectTournament();
 
-                    const [child1Genome, child2Genome] = this.crossover(parent1, parent2, crossoverFunc);
+                    // Fighting animation
+                    if (animationSpeed > 0 && newPopulation.length % 5 === 0) {
+                        this.creatures[parent1.index].animationState = 'fighting';
+                        this.creatures[parent2.index].animationState = 'fighting';
+                        await this.animateCreatures(20, animationSpeed);
+                        addLog(`💥 Creature ${parent1.index} vs ${parent2.index} - Selection battle!`, 'fight');
+                    }
 
-                    const mutatedChild1 = this.mutate(child1Genome, mutateFunc);
-                    const mutatedChild2 = this.mutate(child2Genome, mutateFunc);
+                    // Crossover
+                    let child1Genome, child2Genome;
+                    if (Math.random() < this.config.crossoverRate) {
+                        [child1Genome, child2Genome] = crossoverFunc(parent1.individual.genome, parent2.individual.genome);
 
-                    newPopulation.push(new Individual(mutatedChild1));
+                        // Mating animation
+                        if (animationSpeed > 0 && newPopulation.length % 5 === 0) {
+                            this.creatures[parent1.index].animationState = 'mating';
+                            this.creatures[parent2.index].animationState = 'mating';
+                            await this.animateCreatures(20, animationSpeed);
+                            addLog(`💖 Creatures ${parent1.index} and ${parent2.index} mated!`, 'mate');
+                        }
+                    } else {
+                        child1Genome = parent1.individual.genome;
+                        child2Genome = parent2.individual.genome;
+                    }
+
+                    // Mutation
+                    const mutated1 = Math.random() < this.config.mutationRate;
+                    const mutated2 = Math.random() < this.config.mutationRate;
+
+                    if (mutated1) child1Genome = mutateFunc(child1Genome);
+                    if (mutated2) child2Genome = mutateFunc(child2Genome);
+
+                    newPopulation.push(new Individual(child1Genome));
+                    const x1 = Math.random() * 700 + 50;
+                    const y1 = Math.random() * 400 + 50;
+                    const creature1 = new Creature(child1Genome, x1, y1);
+                    if (mutated1 && animationSpeed > 0) {
+                        creature1.animationState = 'mutating';
+                        addLog(`✨ New creature mutated!`, 'mutate');
+                    }
+                    newCreatures.push(creature1);
+
                     if (newPopulation.length < this.config.populationSize) {
-                        newPopulation.push(new Individual(mutatedChild2));
+                        newPopulation.push(new Individual(child2Genome));
+                        const x2 = Math.random() * 700 + 50;
+                        const y2 = Math.random() * 400 + 50;
+                        const creature2 = new Creature(child2Genome, x2, y2);
+                        if (mutated2 && animationSpeed > 0) {
+                            creature2.animationState = 'mutating';
+                        }
+                        newCreatures.push(creature2);
                     }
                 }
 
                 this.population = newPopulation.slice(0, this.config.populationSize);
+                this.creatures = newCreatures.slice(0, this.config.populationSize);
                 this.generation++;
 
                 return stats;
             }
 
-            async run(fitnessFunc, mutateFunc, crossoverFunc, genomeFactory, callback) {
-                this.initialize(genomeFactory);
+            async animateCreatures(frames, speed) {
+                const delay = [800, 400, 200, 100, 0][speed];
+                if (delay === 0) return;
+
+                for (let i = 0; i < frames; i++) {
+                    for (let creature of this.creatures) {
+                        creature.update();
+                    }
+                    await new Promise(resolve => setTimeout(resolve, delay / frames));
+                }
+            }
+
+            async run(fitnessFunc, mutateFunc, crossoverFunc, genomeFactory, callback, canvasWidth, canvasHeight, animationSpeed) {
+                this.initialize(genomeFactory, canvasWidth, canvasHeight);
                 this.running = true;
 
                 for (let gen = 0; gen < this.config.maxGenerations && this.running; gen++) {
-                    await this.evolveGeneration(fitnessFunc, mutateFunc, crossoverFunc, callback);
+                    await this.evolveGeneration(fitnessFunc, mutateFunc, crossoverFunc, callback, animationSpeed);
                 }
 
                 return this.bestIndividual;
@@ -430,11 +665,11 @@
             }
         }
 
-        // Problem Implementations
+        // Problem implementations (same as before)
         const problems = {
             string: {
-                charset: ' ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!?.,;:',
-                target: 'Hello Evolution!',
+                charset: ' ABCDEFGHIJKLMNOPQRSTUVWXYZ!?',
+                target: 'HELLO WORLD',
 
                 createGenome() {
                     let genome = '';
@@ -449,7 +684,7 @@
                     for (let i = 0; i < genome.length; i++) {
                         if (genome[i] === this.target[i]) score++;
                     }
-                    return score;
+                    return score / this.target.length;
                 },
 
                 mutate(genome) {
@@ -467,24 +702,18 @@
                     ];
                 },
 
-                maxFitness() {
-                    return this.target.length;
-                }
+                maxFitness() { return 1; }
             },
 
             binary: {
                 length: 50,
 
                 createGenome() {
-                    const genome = [];
-                    for (let i = 0; i < this.length; i++) {
-                        genome.push(Math.random() < 0.5 ? 0 : 1);
-                    }
-                    return genome;
+                    return Array.from({length: this.length}, () => Math.random() < 0.5 ? 0 : 1);
                 },
 
                 fitness(genome) {
-                    return genome.reduce((sum, bit) => sum + bit, 0);
+                    return genome.reduce((sum, bit) => sum + bit, 0) / this.length;
                 },
 
                 mutate(genome) {
@@ -502,9 +731,7 @@
                     ];
                 },
 
-                maxFitness() {
-                    return this.length;
-                }
+                maxFitness() { return 1; }
             },
 
             function: {
@@ -512,17 +739,13 @@
                 bounds: [-5, 5],
 
                 createGenome() {
-                    const genome = [];
-                    for (let i = 0; i < this.dimension; i++) {
-                        genome.push(Math.random() * (this.bounds[1] - this.bounds[0]) + this.bounds[0]);
-                    }
-                    return genome;
+                    return Array.from({length: this.dimension},
+                        () => Math.random() * (this.bounds[1] - this.bounds[0]) + this.bounds[0]);
                 },
 
                 fitness(genome) {
-                    // Sphere function (minimize, so negate)
                     const sum = genome.reduce((acc, x) => acc + x * x, 0);
-                    return -sum;
+                    return 1 / (1 + sum); // Normalize to 0-1
                 },
 
                 mutate(genome) {
@@ -541,19 +764,39 @@
                     ];
                 },
 
-                maxFitness() {
-                    return 0; // Optimal for sphere function
-                }
+                maxFitness() { return 1; }
             }
         };
 
-        // UI Controller
-        let evolution = null;
-        let chart = null;
+        // Canvas rendering
+        let canvas, ctx, evolution, chart;
+        let animationFrameId;
+
+        function initCanvas() {
+            canvas = document.getElementById('worldCanvas');
+            ctx = canvas.getContext('2d');
+            canvas.width = 800;
+            canvas.height = 500;
+        }
+
+        function renderWorld() {
+            ctx.fillStyle = 'rgba(135, 206, 235, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (evolution && evolution.creatures) {
+                for (let creature of evolution.creatures) {
+                    creature.draw(ctx);
+                }
+            }
+
+            if (evolution && evolution.running) {
+                animationFrameId = requestAnimationFrame(renderWorld);
+            }
+        }
 
         function initChart() {
-            const ctx = document.getElementById('fitnessChart').getContext('2d');
-            chart = new Chart(ctx, {
+            const chartCtx = document.getElementById('fitnessChart').getContext('2d');
+            chart = new Chart(chartCtx, {
                 type: 'line',
                 data: {
                     labels: [],
@@ -577,30 +820,11 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        title: {
-                            display: true,
-                            text: 'Evolution Progress',
-                            font: { size: 16, weight: 'bold' }
-                        },
-                        legend: {
-                            display: true,
-                            position: 'top'
-                        }
+                        legend: { display: true, position: 'top' }
                     },
                     scales: {
-                        y: {
-                            beginAtZero: false,
-                            title: {
-                                display: true,
-                                text: 'Fitness'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Generation'
-                            }
-                        }
+                        y: { beginAtZero: true, max: 1, title: { display: true, text: 'Fitness' }},
+                        x: { title: { display: true, text: 'Generation' }}
                     }
                 }
             });
@@ -611,14 +835,13 @@
             chart.data.datasets[0].data.push(bestFitness);
             chart.data.datasets[1].data.push(avgFitness);
 
-            // Keep only last 100 points for performance
-            if (chart.data.labels.length > 100) {
+            if (chart.data.labels.length > 50) {
                 chart.data.labels.shift();
                 chart.data.datasets[0].data.shift();
                 chart.data.datasets[1].data.shift();
             }
 
-            chart.update('none'); // Update without animation for performance
+            chart.update('none');
         }
 
         function displaySolution(genome, problemType) {
@@ -628,19 +851,29 @@
                 display.textContent = genome;
             } else if (problemType === 'binary') {
                 const str = genome.join('');
-                display.textContent = str.length > 100 ? str.slice(0, 100) + '...' : str;
+                display.textContent = str.length > 80 ? str.slice(0, 80) + '...' : str;
             } else if (problemType === 'function') {
                 display.textContent = `[${genome.map(x => x.toFixed(4)).join(', ')}]`;
             }
+        }
+
+        let logEntries = [];
+        function addLog(message, type) {
+            const logDiv = document.getElementById('logEntries');
+            logEntries.unshift({ message, type });
+            if (logEntries.length > 20) logEntries.pop();
+
+            logDiv.innerHTML = logEntries.map(entry =>
+                `<div class="action-log-entry action-${entry.type}">${entry.message}</div>`
+            ).join('');
         }
 
         async function runEvolution() {
             const problemType = document.getElementById('problemType').value;
             const problem = problems[problemType];
 
-            // Update problem configuration
             if (problemType === 'string') {
-                problem.target = document.getElementById('targetString').value;
+                problem.target = document.getElementById('targetString').value.toUpperCase();
             } else if (problemType === 'binary') {
                 problem.length = parseInt(document.getElementById('binaryLength').value);
             } else if (problemType === 'function') {
@@ -652,81 +885,62 @@
                 maxGenerations: parseInt(document.getElementById('maxGenerations').value),
                 mutationRate: parseFloat(document.getElementById('mutationRate').value),
                 crossoverRate: parseFloat(document.getElementById('crossoverRate').value),
-                elitism: parseInt(document.getElementById('elitism').value),
-                selectionMethod: document.getElementById('selectionMethod').value
+                elitism: 2,
+                selectionMethod: 'tournament'
             };
 
-            const speed = parseInt(document.getElementById('speed').value);
+            const speed = parseInt(document.getElementById('speedControl').value);
 
-            // Reset chart
+            // Reset
             chart.data.labels = [];
             chart.data.datasets[0].data = [];
             chart.data.datasets[1].data = [];
             chart.update();
+            logEntries = [];
+            document.getElementById('logEntries').innerHTML = '';
 
-            // UI updates
             document.getElementById('runBtn').style.display = 'none';
             document.getElementById('stopBtn').style.display = 'block';
-            document.getElementById('statusMessage').style.display = 'none';
 
             evolution = new EvolutionAlgorithm(config);
+            addLog(`🚀 Starting evolution with ${config.populationSize} creatures!`, 'evolve');
 
-            let updateCounter = 0;
             const callback = async (stats) => {
-                updateCounter++;
+                document.getElementById('genStat').textContent = stats.generation;
+                document.getElementById('bestFitnessStat').textContent = (stats.bestFitness * 100).toFixed(1) + '%';
+                document.getElementById('avgFitnessStat').textContent = (stats.avgFitness * 100).toFixed(1) + '%';
 
-                const shouldUpdate = speed === 0 || updateCounter % speed === 0;
+                const progress = (stats.generation / config.maxGenerations) * 100;
+                document.getElementById('progressBar').style.width = progress + '%';
+                document.getElementById('progressBar').textContent = Math.round(progress) + '%';
 
-                if (shouldUpdate) {
-                    // Update stats
-                    document.getElementById('genStat').textContent = stats.generation;
-                    document.getElementById('bestFitnessStat').textContent = stats.bestFitness.toFixed(2);
-                    document.getElementById('avgFitnessStat').textContent = stats.avgFitness.toFixed(2);
+                const successPct = (stats.bestFitness * 100).toFixed(0);
+                document.getElementById('progressStat').textContent = successPct + '%';
 
-                    const progress = (stats.generation / config.maxGenerations) * 100;
-                    document.getElementById('progressBar').style.width = progress + '%';
-                    document.getElementById('progressBar').textContent = Math.round(progress) + '%';
+                displaySolution(stats.bestGenome, problemType);
+                updateChart(stats.generation, stats.bestFitness, stats.avgFitness);
 
-                    const maxFit = problem.maxFitness();
-                    if (maxFit !== 0) {
-                        const successPct = problemType === 'function'
-                            ? Math.max(0, 100 + (stats.bestFitness / Math.abs(maxFit)) * 100)
-                            : (stats.bestFitness / maxFit) * 100;
-                        document.getElementById('progressStat').textContent = Math.round(successPct) + '%';
-                    } else {
-                        document.getElementById('progressStat').textContent = '—';
-                    }
-
-                    displaySolution(stats.bestGenome, problemType);
-                    updateChart(stats.generation, stats.bestFitness, stats.avgFitness);
-
-                    // Allow UI to update
-                    if (speed > 0) {
-                        await new Promise(resolve => setTimeout(resolve, 10));
-                    }
+                if (stats.generation % 10 === 0) {
+                    addLog(`📊 Generation ${stats.generation}: Best ${(stats.bestFitness * 100).toFixed(1)}%`, 'evolve');
                 }
             };
 
-            const startTime = Date.now();
+            renderWorld();
 
             await evolution.run(
                 problem.fitness.bind(problem),
                 problem.mutate.bind(problem),
                 problem.crossover.bind(problem),
                 problem.createGenome.bind(problem),
-                callback
+                callback,
+                canvas.width,
+                canvas.height,
+                speed
             );
 
-            const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
-
-            // Final update
             document.getElementById('runBtn').style.display = 'block';
             document.getElementById('stopBtn').style.display = 'none';
-
-            const msg = document.getElementById('statusMessage');
-            msg.className = 'alert alert-success mt-3';
-            msg.textContent = `Evolution completed in ${elapsed}s! Best fitness: ${evolution.bestIndividual.fitness.toFixed(4)}`;
-            msg.style.display = 'block';
+            addLog(`🏁 Evolution complete! Best fitness: ${(evolution.bestIndividual.fitness * 100).toFixed(1)}%`, 'evolve');
         }
 
         function stopEvolution() {
@@ -735,11 +949,7 @@
             }
             document.getElementById('runBtn').style.display = 'block';
             document.getElementById('stopBtn').style.display = 'none';
-
-            const msg = document.getElementById('statusMessage');
-            msg.className = 'alert alert-warning mt-3';
-            msg.textContent = 'Evolution stopped by user.';
-            msg.style.display = 'block';
+            addLog('⏹️ Evolution stopped by user', 'evolve');
         }
 
         // Event Listeners
@@ -752,13 +962,17 @@
             document.getElementById('functionConfig').style.display = e.target.value === 'function' ? 'block' : 'none';
         });
 
+        document.getElementById('speedControl').addEventListener('input', (e) => {
+            const labels = ['🐌 Slow (See Every Action)', '🚶 Normal (Smooth)', '🏃 Fast (Quick)', '🚀 Turbo (Very Fast)', '⚡ Instant (No Animation)'];
+            document.getElementById('speedLabel').textContent = labels[e.target.value];
+        });
+
         // Update value displays
         const sliders = [
             ['populationSize', 'popSizeVal'],
             ['maxGenerations', 'maxGensVal'],
             ['mutationRate', 'mutationVal'],
             ['crossoverRate', 'crossoverVal'],
-            ['elitism', 'elitismVal'],
             ['binaryLength', 'binaryLengthVal'],
             ['dimension', 'dimensionVal']
         ];
@@ -775,7 +989,9 @@
 
         // Initialize
         window.addEventListener('load', () => {
+            initCanvas();
             initChart();
+            addLog('👋 Welcome! Configure settings and click START EVOLUTION', 'evolve');
         });
     </script>
 </body>
