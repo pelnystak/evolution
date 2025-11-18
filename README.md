@@ -2,6 +2,14 @@
 
 An interactive implementation of genetic/evolution algorithms with a user-friendly interface, inspired by Andrzej Dragan's "Quo vAIdis".
 
+## 🌐 Live Demo
+
+**Try it online:** [https://pelnystak.github.io/evolution/](https://pelnystak.github.io/evolution/)
+
+No installation required - works directly in your browser!
+
+> **Note:** If the link doesn't work yet, see [GITHUB_PAGES_SETUP.md](GITHUB_PAGES_SETUP.md) for quick setup instructions (takes 2 minutes).
+
 ## 🚀 Quick Start Options
 
 ### Option 1: Pure Frontend (No Installation Required!) 🌐
