@@ -330,9 +330,9 @@
                 </div>
                 <div style="margin-top: 10px;">
                     <strong>Size</strong> = Strength level<br>
-                    <strong>💥</strong> = Fighting<br>
-                    <strong>🥗</strong> = Eating (gaining strength)<br>
-                    <strong>💕</strong> = Reproducing
+                    <strong>Red flash</strong> = Fighting<br>
+                    <strong>Green glow</strong> = Eating (gaining strength)<br>
+                    <strong>Pink glow</strong> = Reproducing
                 </div>
             </div>
         </div>
@@ -412,64 +412,45 @@
             draw(ctx) {
                 if (!this.alive) return;
 
-                ctx.save();
-                ctx.translate(this.x, this.y);
-
                 // Size based on strength
                 const size = 8 + this.strength * 12;
 
-                // Color based on gender
-                if (this.gender === 'male') {
-                    ctx.fillStyle = `rgb(65, 105, ${180 + this.strength * 75})`;
+                // Color based on gender and animation state
+                let fillColor;
+                if (this.animationState === 'fighting') {
+                    // Red flash during fight
+                    fillColor = `rgb(255, 0, 0)`;
+                } else if (this.animationState === 'eating') {
+                    // Green glow when eating
+                    fillColor = `rgb(0, 255, 0)`;
+                } else if (this.animationState === 'mating') {
+                    // Pink glow when mating
+                    fillColor = `rgb(255, 182, 193)`;
                 } else {
-                    ctx.fillStyle = `rgb(255, ${105 + this.strength * 50}, ${180 + this.strength * 75})`;
+                    // Normal colors
+                    if (this.gender === 'male') {
+                        fillColor = `rgb(65, 105, ${180 + this.strength * 75})`;
+                    } else {
+                        fillColor = `rgb(255, ${105 + this.strength * 50}, ${180 + this.strength * 75})`;
+                    }
                 }
 
-                // Animation effects
+                // Simple size pulse for animations
                 let drawSize = size;
-                if (this.animationState === 'fighting') {
-                    ctx.rotate(Math.sin(this.animationProgress * Math.PI * 8) * 0.3);
-                    drawSize *= 1 + Math.sin(this.animationProgress * Math.PI * 4) * 0.2;
-                } else if (this.animationState === 'eating') {
-                    drawSize *= 1 + this.animationProgress * 0.3;
-                } else if (this.animationState === 'mating') {
-                    drawSize *= 1 + Math.sin(this.animationProgress * Math.PI * 2) * 0.2;
+                if (this.animationState !== 'idle') {
+                    drawSize *= 1 + Math.sin(this.animationProgress * Math.PI * 2) * 0.15;
                 }
 
-                // Draw body
+                // Draw body - simple circle
+                ctx.fillStyle = fillColor;
                 ctx.beginPath();
-                ctx.arc(0, 0, drawSize, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y, drawSize, 0, Math.PI * 2);
                 ctx.fill();
-                ctx.strokeStyle = 'rgba(0,0,0,0.3)';
-                ctx.lineWidth = 2;
+
+                // Simple border
+                ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+                ctx.lineWidth = 1.5;
                 ctx.stroke();
-
-                // Draw eyes
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.arc(-size * 0.3, -size * 0.3, size * 0.25, 0, Math.PI * 2);
-                ctx.arc(size * 0.3, -size * 0.3, size * 0.25, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = 'black';
-                ctx.beginPath();
-                ctx.arc(-size * 0.3, -size * 0.3, size * 0.15, 0, Math.PI * 2);
-                ctx.arc(size * 0.3, -size * 0.3, size * 0.15, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Draw animation icons
-                if (this.animationState === 'fighting') {
-                    ctx.font = '20px Arial';
-                    ctx.fillText('💥', drawSize, -drawSize);
-                } else if (this.animationState === 'eating') {
-                    ctx.font = '20px Arial';
-                    ctx.fillText('🥗', drawSize, -drawSize);
-                } else if (this.animationState === 'mating') {
-                    ctx.font = '20px Arial';
-                    ctx.fillText('💕', drawSize, -drawSize);
-                }
-
-                ctx.restore();
             }
 
             distanceTo(other) {
@@ -527,6 +508,13 @@
                 this.update();
                 this.draw();
 
+                // Throttle stats updates for performance (update every 5 frames)
+                if (!this.frameCount) this.frameCount = 0;
+                this.frameCount++;
+                if (this.frameCount % 5 === 0) {
+                    this.updateStats();
+                }
+
                 this.animationFrame = requestAnimationFrame(() => this.loop());
             }
 
@@ -543,9 +531,6 @@
 
                 // Remove dead actors
                 this.actors = this.actors.filter(a => a.alive);
-
-                // Update stats
-                this.updateStats();
             }
 
             checkInteractions() {
@@ -601,8 +586,10 @@
                     loser.alive = false;
 
                     this.stats.fights++;
-                    addLog(`💥 Fight! Winner gains strength (${winner.strength.toFixed(2)})`, 'fight');
-                    addLog(`☠️ Actor died in battle`, 'death');
+                    // Only log every 10th fight to reduce spam
+                    if (this.stats.fights % 10 === 0) {
+                        addLog(`💥 ${this.stats.fights} fights so far`, 'fight');
+                    }
                 }, this.speed === 0 ? 1000 : 300);
             }
 
@@ -647,16 +634,16 @@
                     this.actors.push(child);
                     this.stats.births++;
 
-                    addLog(`👶 New ${childGender} born! Gen: ${child.generation}`, 'birth');
+                    // Only log every 10th birth to reduce spam
+                    if (this.stats.births % 10 === 0) {
+                        addLog(`👶 ${this.stats.births} births! Generation ${child.generation}`, 'birth');
+                    }
                 }, this.speed === 0 ? 1500 : 500);
             }
 
             draw() {
-                // Clear canvas
-                const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
-                gradient.addColorStop(0, '#87ceeb');
-                gradient.addColorStop(1, '#228b22');
-                this.ctx.fillStyle = gradient;
+                // Clear canvas with solid color (faster than gradient)
+                this.ctx.fillStyle = '#98d8c8';
                 this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
                 // Draw all actors
