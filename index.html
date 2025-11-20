@@ -14,13 +14,22 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
         .container {
             display: flex;
-            height: 100vh;
+            min-height: 100vh;
             padding: 20px;
             gap: 20px;
+        }
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100% !important;
+            }
         }
         .world-container {
             flex: 1;
@@ -50,11 +59,19 @@
         }
         #worldCanvas {
             width: 100%;
-            height: 600px;
+            height: auto;
+            max-height: 600px;
+            aspect-ratio: 2 / 1;
             background: linear-gradient(180deg, #87ceeb 0%, #228b22 100%);
             border-radius: 15px;
             cursor: crosshair;
             box-shadow: inset 0 0 50px rgba(0,0,0,0.3);
+            display: block;
+        }
+        @media (max-width: 768px) {
+            #worldCanvas {
+                max-height: 400px;
+            }
         }
         .speed-control {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
@@ -224,7 +241,7 @@
 
             <!-- Canvas -->
             <div class="card">
-                <canvas id="worldCanvas" width="1200" height="600"></canvas>
+                <canvas id="worldCanvas"></canvas>
             </div>
 
             <!-- Event Log -->
@@ -314,7 +331,7 @@
                 <div style="margin-top: 10px;">
                     <strong>Size</strong> = Strength level<br>
                     <strong>💥</strong> = Fighting<br>
-                    <strong>🍖</strong> = Eating (gaining strength)<br>
+                    <strong>🥗</strong> = Eating (gaining strength)<br>
                     <strong>💕</strong> = Reproducing
                 </div>
             </div>
@@ -446,7 +463,7 @@
                     ctx.fillText('💥', drawSize, -drawSize);
                 } else if (this.animationState === 'eating') {
                     ctx.font = '20px Arial';
-                    ctx.fillText('🍖', drawSize, -drawSize);
+                    ctx.fillText('🥗', drawSize, -drawSize);
                 } else if (this.animationState === 'mating') {
                     ctx.font = '20px Arial';
                     ctx.fillText('💕', drawSize, -drawSize);
@@ -682,6 +699,28 @@
         // Initialize
         const canvas = document.getElementById('worldCanvas');
         const sim = new Simulation(canvas);
+
+        // Set canvas size responsively
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const rect = container.getBoundingClientRect();
+            const width = rect.width - 40; // Account for padding
+            const height = Math.min(600, width / 2); // 2:1 aspect ratio, max 600px
+
+            canvas.width = width;
+            canvas.height = height;
+
+            // Redraw if simulation exists
+            if (sim.actors.length > 0) {
+                sim.draw();
+            }
+        }
+
+        // Initial resize
+        resizeCanvas();
+
+        // Resize on window resize
+        window.addEventListener('resize', resizeCanvas);
 
         // Event listeners
         document.getElementById('startBtn').addEventListener('click', () => {
