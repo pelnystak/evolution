@@ -3,391 +3,377 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧬 Evolution Simulator - Watch Life Evolve!</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <title>🧬 Evolution Simulator - Life, Death, and Survival</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            overflow: hidden;
         }
-        .main-container {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        .container {
+            display: flex;
+            height: 100vh;
+            padding: 20px;
+            gap: 20px;
         }
-        .header {
+        .world-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .sidebar {
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+        h1 {
+            font-size: 2rem;
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 4px solid #667eea;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
         }
-        .header h1 {
-            color: #667eea;
-            font-weight: bold;
-            font-size: 2.5rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-        .world-canvas-container {
-            position: relative;
-            background: linear-gradient(180deg, #87ceeb 0%, #98d8c8 100%);
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             border-radius: 15px;
-            padding: 10px;
-            margin-bottom: 20px;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.2);
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
         #worldCanvas {
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
             width: 100%;
-            height: 500px;
-            cursor: pointer;
+            height: 600px;
+            background: linear-gradient(180deg, #87ceeb 0%, #228b22 100%);
+            border-radius: 15px;
+            cursor: crosshair;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.3);
         }
         .speed-control {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.3);
         }
-        .speed-control h4 {
+        .speed-control h3 {
             margin-bottom: 15px;
-            font-weight: bold;
             text-align: center;
+            font-size: 1.3rem;
         }
         .speed-slider {
-            height: 15px;
-            border-radius: 10px;
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            outline: none;
+            -webkit-appearance: none;
+            background: rgba(255,255,255,0.3);
         }
         .speed-slider::-webkit-slider-thumb {
-            width: 30px;
-            height: 30px;
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
             border-radius: 50%;
             background: white;
             cursor: pointer;
             box-shadow: 0 0 10px rgba(0,0,0,0.3);
         }
+        .speed-slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            border: none;
+        }
         .speed-labels {
             display: flex;
             justify-content: space-between;
             margin-top: 10px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
         }
-        .control-panel {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-        .stats-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 15px;
+        .speed-display {
             text-align: center;
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-            transition: transform 0.2s;
-        }
-        .stats-card:hover {
-            transform: translateY(-5px);
-        }
-        .stats-card h3 {
-            font-size: 2.5rem;
-            margin: 0;
-            font-weight: bold;
-        }
-        .stats-card p {
-            margin: 5px 0 0 0;
-            opacity: 0.95;
+            margin-top: 10px;
             font-size: 1.1rem;
-        }
-        .btn-run {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            padding: 15px 50px;
-            font-size: 1.4rem;
             font-weight: bold;
-            border-radius: 50px;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .stat-box {
+            background: rgba(255,255,255,0.15);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .controls button {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
             transition: all 0.3s;
         }
-        .btn-run:hover {
+        .btn-start {
+            background: linear-gradient(135deg, #00b09b, #96c93d);
+            color: white;
+        }
+        .btn-start:hover {
             transform: scale(1.05);
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 5px 20px rgba(0,176,155,0.4);
         }
         .btn-stop {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            border: none;
-            padding: 15px 50px;
-            font-size: 1.4rem;
-            font-weight: bold;
-            border-radius: 50px;
-            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            color: white;
         }
-        .progress {
-            height: 35px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 20px;
-            overflow: hidden;
+        .btn-reset {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
         }
-        .solution-display {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 15px;
-            font-family: 'Courier New', monospace;
-            font-size: 1.3rem;
-            word-break: break-all;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 3px solid #667eea;
-        }
-        .chart-container {
-            position: relative;
-            height: 350px;
-            margin-top: 20px;
-            background: white;
-            padding: 15px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        .form-label {
-            font-weight: 700;
-            color: #495057;
-            margin-bottom: 8px;
-        }
-        .legend-box {
-            background: rgba(255,255,255,0.95);
-            border: 2px solid #667eea;
+        .log-container {
+            background: rgba(0,0,0,0.3);
             border-radius: 10px;
             padding: 15px;
-            margin-top: 15px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .log-fight { background: rgba(255, 0, 0, 0.2); }
+        .log-eat { background: rgba(255, 165, 0, 0.2); }
+        .log-reproduce { background: rgba(255, 192, 203, 0.3); }
+        .log-death { background: rgba(128, 128, 128, 0.2); }
+        .log-birth { background: rgba(0, 255, 0, 0.2); }
+        .legend {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         .legend-item {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
+            gap: 10px;
         }
         .legend-color {
             width: 30px;
             height: 30px;
             border-radius: 50%;
-            margin-right: 15px;
-            border: 2px solid #333;
+            border: 2px solid white;
         }
-        .action-log {
-            background: rgba(0,0,0,0.05);
-            border-radius: 10px;
-            padding: 15px;
-            height: 150px;
-            overflow-y: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            margin-top: 15px;
+        .male-color { background: #4169e1; }
+        .female-color { background: #ff69b4; }
+        .config-slider {
+            margin-bottom: 15px;
         }
-        .action-log-entry {
+        .config-slider label {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 5px;
-            padding: 5px;
-            border-radius: 5px;
+            font-weight: 600;
         }
-        .action-fight { background: rgba(255, 0, 0, 0.1); }
-        .action-mate { background: rgba(255, 192, 203, 0.2); }
-        .action-mutate { background: rgba(255, 165, 0, 0.1); }
-        .action-evolve { background: rgba(0, 255, 0, 0.1); }
+        .config-slider input {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
-    <div class="container-fluid main-container">
-        <div class="header">
+    <div class="container">
+        <!-- Main World Area -->
+        <div class="world-container">
             <h1>🧬 Evolution Simulator</h1>
-            <p class="lead">Watch Life Fight, Mate, and Evolve!</p>
-            <p class="text-muted">Inspired by Andrzej Dragan's "Quo vAIdis"</p>
+
+            <!-- Speed Control (Prominent) -->
+            <div class="card speed-control">
+                <h3>⚡ SIMULATION SPEED</h3>
+                <input type="range" id="speedSlider" class="speed-slider" min="0" max="4" value="2" step="1">
+                <div class="speed-labels">
+                    <span>🐌 Slow</span>
+                    <span>🚶 Normal</span>
+                    <span>🏃 Fast</span>
+                    <span>🚀 Turbo</span>
+                    <span>⚡ Max</span>
+                </div>
+                <div class="speed-display" id="speedDisplay">Normal Speed</div>
+            </div>
+
+            <!-- Canvas -->
+            <div class="card">
+                <canvas id="worldCanvas" width="1200" height="600"></canvas>
+            </div>
+
+            <!-- Event Log -->
+            <div class="card">
+                <h3>📜 Event Log</h3>
+                <div class="log-container" id="logContainer"></div>
+            </div>
         </div>
 
-        <div class="row">
-            <!-- Left Panel - World & Controls -->
-            <div class="col-lg-8">
-                <!-- Speed Control (Prominent!) -->
-                <div class="speed-control">
-                    <h4>⚡ EVOLUTION SPEED</h4>
-                    <input type="range" id="speedControl" class="form-range speed-slider"
-                           min="0" max="4" value="2" step="1">
-                    <div class="speed-labels">
-                        <span>🐌 Slow</span>
-                        <span>🚶 Normal</span>
-                        <span>🏃 Fast</span>
-                        <span>🚀 Turbo</span>
-                        <span>⚡ Instant</span>
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Controls -->
+            <div class="card controls">
+                <h3>🎮 Controls</h3>
+                <button class="btn-start" id="startBtn">▶️ START SIMULATION</button>
+                <button class="btn-stop" id="stopBtn" style="display:none;">⏸️ PAUSE</button>
+                <button class="btn-reset" id="resetBtn">🔄 RESET</button>
+            </div>
+
+            <!-- Statistics -->
+            <div class="card">
+                <h3>📊 Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value" id="totalPopulation">0</div>
+                        <div class="stat-label">Total Population</div>
                     </div>
-                    <div class="text-center mt-2" style="font-size: 1.2rem;">
-                        <strong id="speedLabel">Normal Speed</strong>
+                    <div class="stat-box">
+                        <div class="stat-value" id="maleCount">0</div>
+                        <div class="stat-label">Males</div>
                     </div>
-                </div>
-
-                <!-- World Canvas -->
-                <div class="world-canvas-container">
-                    <canvas id="worldCanvas" width="800" height="500"></canvas>
-                </div>
-
-                <!-- Action Log -->
-                <div class="action-log" id="actionLog">
-                    <strong>📜 Evolution Log:</strong>
-                    <div id="logEntries"></div>
-                </div>
-
-                <!-- Progress Bar -->
-                <div class="progress mb-3 mt-3">
-                    <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated"
-                         role="progressbar" style="width: 0%">0%</div>
-                </div>
-
-                <!-- Best Solution -->
-                <div class="mb-3">
-                    <h5>🏆 Best Solution</h5>
-                    <div id="bestSolution" class="solution-display">
-                        Click RUN to start evolution!
+                    <div class="stat-box">
+                        <div class="stat-value" id="femaleCount">0</div>
+                        <div class="stat-label">Females</div>
                     </div>
-                </div>
-
-                <!-- Run Button -->
-                <div class="d-grid gap-2">
-                    <button id="runBtn" class="btn btn-primary btn-run">▶️ START EVOLUTION</button>
-                    <button id="stopBtn" class="btn btn-danger btn-stop" style="display: none;">⏹️ STOP</button>
+                    <div class="stat-box">
+                        <div class="stat-value" id="generationCount">0</div>
+                        <div class="stat-label">Generation</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="fightCount">0</div>
+                        <div class="stat-label">Fights</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="birthCount">0</div>
+                        <div class="stat-label">Births</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Right Panel - Stats & Controls -->
-            <div class="col-lg-4">
-                <!-- Statistics -->
-                <h4 class="mb-3">📊 Statistics</h4>
-                <div class="stats-card">
-                    <h3 id="genStat">0</h3>
-                    <p>Generation</p>
+            <!-- Configuration -->
+            <div class="card">
+                <h3>⚙️ Configuration</h3>
+                <div class="config-slider">
+                    <label>
+                        <span>Initial Population</span>
+                        <span id="initPopValue">30</span>
+                    </label>
+                    <input type="range" id="initPop" min="10" max="100" value="30" step="5">
                 </div>
-                <div class="stats-card">
-                    <h3 id="bestFitnessStat">0.00</h3>
-                    <p>Best Fitness</p>
+                <div class="config-slider">
+                    <label>
+                        <span>Male Ratio</span>
+                        <span id="maleRatioValue">50%</span>
+                    </label>
+                    <input type="range" id="maleRatio" min="20" max="80" value="50" step="5">
                 </div>
-                <div class="stats-card">
-                    <h3 id="avgFitnessStat">0.00</h3>
-                    <p>Avg Fitness</p>
-                </div>
-                <div class="stats-card">
-                    <h3 id="progressStat">0%</h3>
-                    <p>Progress</p>
-                </div>
+            </div>
 
-                <!-- Configuration -->
-                <div class="control-panel mt-4">
-                    <h4 class="mb-3">⚙️ Configuration</h4>
-
-                    <div class="mb-3">
-                        <label class="form-label">Problem Type</label>
-                        <select id="problemType" class="form-select">
-                            <option value="string">🔤 String Evolution</option>
-                            <option value="binary">💻 Binary Optimization</option>
-                            <option value="function">📈 Function Optimization</option>
-                        </select>
-                    </div>
-
-                    <div id="stringConfig" class="mb-3">
-                        <label class="form-label">Target String</label>
-                        <input type="text" id="targetString" class="form-control" value="HELLO WORLD">
-                    </div>
-
-                    <div id="binaryConfig" class="mb-3" style="display: none;">
-                        <label class="form-label">Binary Length: <span id="binaryLengthVal">50</span></label>
-                        <input type="range" id="binaryLength" class="form-range" min="20" max="100" value="50">
-                    </div>
-
-                    <div id="functionConfig" class="mb-3" style="display: none;">
-                        <label class="form-label">Dimension: <span id="dimensionVal">2</span></label>
-                        <input type="range" id="dimension" class="form-range" min="2" max="5" value="2">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Population: <span id="popSizeVal">50</span></label>
-                        <input type="range" id="populationSize" class="form-range" min="20" max="100" value="50">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Generations: <span id="maxGensVal">200</span></label>
-                        <input type="range" id="maxGenerations" class="form-range" min="50" max="1000" value="200">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Mutation: <span id="mutationVal">0.05</span></label>
-                        <input type="range" id="mutationRate" class="form-range" min="0.01" max="0.3" step="0.01" value="0.05">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Crossover: <span id="crossoverVal">0.7</span></label>
-                        <input type="range" id="crossoverRate" class="form-range" min="0.5" max="1.0" step="0.05" value="0.7">
+            <!-- Legend -->
+            <div class="card legend">
+                <h3>🎨 Legend</h3>
+                <div class="legend-item">
+                    <div class="legend-color male-color"></div>
+                    <div>
+                        <strong>Males (Blue)</strong><br>
+                        Fight other males for territory
                     </div>
                 </div>
-
-                <!-- Legend -->
-                <div class="legend-box">
-                    <h5>🎨 Legend</h5>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: linear-gradient(135deg, #ff0000, #ff6666);"></div>
-                        <div>Low Fitness</div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: linear-gradient(135deg, #ffff00, #ffff66);"></div>
-                        <div>Medium Fitness</div>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: linear-gradient(135deg, #00ff00, #66ff66);"></div>
-                        <div>High Fitness</div>
-                    </div>
-                    <div class="mt-3">
-                        <strong>Animations:</strong><br>
-                        💥 Fighting = Selection<br>
-                        💖 Mating = Crossover<br>
-                        ✨ Sparkles = Mutation<br>
-                        🍽️ Growing = Eating/Fitness
+                <div class="legend-item">
+                    <div class="legend-color female-color"></div>
+                    <div>
+                        <strong>Females (Pink)</strong><br>
+                        Reproduce with males
                     </div>
                 </div>
-
-                <!-- Chart -->
-                <div class="chart-container">
-                    <canvas id="fitnessChart"></canvas>
+                <div style="margin-top: 10px;">
+                    <strong>Size</strong> = Strength level<br>
+                    <strong>💥</strong> = Fighting<br>
+                    <strong>🍖</strong> = Eating (gaining strength)<br>
+                    <strong>💕</strong> = Reproducing
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Creature/Organism class
-        class Creature {
-            constructor(genome, x, y) {
-                this.genome = genome;
-                this.fitness = 0;
+        // Actor class representing individual creatures
+        class Actor {
+            constructor(x, y, gender) {
                 this.x = x;
                 this.y = y;
-                this.targetX = x;
-                this.targetY = y;
-                this.size = 15;
-                this.angle = Math.random() * Math.PI * 2;
-                this.animationState = 'idle'; // idle, fighting, mating, mutating, eating
+                this.gender = gender; // 'male' or 'female'
+
+                // Random traits (0-1 scale)
+                this.strength = 0.3 + Math.random() * 0.7; // 0.3-1.0
+                this.speed = 0.5 + Math.random() * 0.5; // 0.5-1.0
+                this.fertility = 0.3 + Math.random() * 0.7; // 0.3-1.0
+                this.aggression = 0.3 + Math.random() * 0.7; // 0.3-1.0
+
+                // State
+                this.alive = true;
+                this.energy = 100;
+                this.age = 0;
+                this.generation = 0;
+
+                // Movement
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+
+                // Animation state
+                this.animationState = 'idle'; // idle, fighting, eating, mating
                 this.animationProgress = 0;
+                this.animationPartner = null;
             }
 
-            update() {
-                // Move towards target
-                const dx = this.targetX - this.x;
-                const dy = this.targetY - this.y;
-                this.x += dx * 0.1;
-                this.y += dy * 0.1;
+            update(width, height, speed) {
+                if (!this.alive) return;
+
+                this.age += 0.01;
+
+                // Random walk with some inertia
+                if (Math.random() < 0.02) {
+                    this.vx += (Math.random() - 0.5) * 0.5;
+                    this.vy += (Math.random() - 0.5) * 0.5;
+                }
+
+                // Apply speed
+                const moveSpeed = this.speed * (speed === 0 ? 0.3 : speed === 1 ? 0.5 : speed === 2 ? 1 : speed === 3 ? 2 : 4);
+                this.x += this.vx * moveSpeed;
+                this.y += this.vy * moveSpeed;
+
+                // Bounce off walls
+                if (this.x < 20 || this.x > width - 20) this.vx *= -1;
+                if (this.y < 20 || this.y > height - 20) this.vy *= -1;
+
+                // Keep in bounds
+                this.x = Math.max(20, Math.min(width - 20, this.x));
+                this.y = Math.max(20, Math.min(height - 20, this.y));
 
                 // Update animation
                 if (this.animationState !== 'idle') {
@@ -395,604 +381,362 @@
                     if (this.animationProgress >= 1) {
                         this.animationState = 'idle';
                         this.animationProgress = 0;
+                        this.animationPartner = null;
                     }
+                }
+
+                // Slowly lose energy
+                this.energy -= 0.01;
+                if (this.energy <= 0) {
+                    this.alive = false;
                 }
             }
 
             draw(ctx) {
+                if (!this.alive) return;
+
                 ctx.save();
                 ctx.translate(this.x, this.y);
 
-                // Color based on fitness (normalized 0-1)
-                const hue = this.fitness * 120; // 0 = red, 120 = green
-                const brightness = 50 + this.fitness * 30;
-                ctx.fillStyle = `hsl(${hue}, 80%, ${brightness}%)`;
-                ctx.strokeStyle = '#333';
-                ctx.lineWidth = 2;
+                // Size based on strength
+                const size = 8 + this.strength * 12;
 
-                // Size based on fitness
-                const drawSize = this.size + this.fitness * 5;
-
-                // Animation effects
-                if (this.animationState === 'fighting') {
-                    ctx.rotate(Math.sin(this.animationProgress * Math.PI * 4) * 0.5);
-                    ctx.globalAlpha = 0.8 + Math.sin(this.animationProgress * Math.PI * 2) * 0.2;
-                } else if (this.animationState === 'mating') {
-                    const pulse = 1 + Math.sin(this.animationProgress * Math.PI * 2) * 0.3;
-                    ctx.scale(pulse, pulse);
-                    // Heart effect
-                    ctx.fillStyle = `rgba(255, 105, 180, ${1 - this.animationProgress})`;
-                } else if (this.animationState === 'mutating') {
-                    // Sparkle effect
-                    for (let i = 0; i < 6; i++) {
-                        const angle = (i / 6) * Math.PI * 2 + this.animationProgress * Math.PI * 2;
-                        const dist = 20 * this.animationProgress;
-                        ctx.fillStyle = `rgba(255, 255, 0, ${1 - this.animationProgress})`;
-                        ctx.beginPath();
-                        ctx.arc(Math.cos(angle) * dist, Math.sin(angle) * dist, 3, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                } else if (this.animationState === 'eating') {
-                    const pulse = 1 + Math.sin(this.animationProgress * Math.PI * 4) * 0.2;
-                    ctx.scale(pulse, pulse);
+                // Color based on gender
+                if (this.gender === 'male') {
+                    ctx.fillStyle = `rgb(65, 105, ${180 + this.strength * 75})`;
+                } else {
+                    ctx.fillStyle = `rgb(255, ${105 + this.strength * 50}, ${180 + this.strength * 75})`;
                 }
 
-                // Draw creature body
+                // Animation effects
+                let drawSize = size;
+                if (this.animationState === 'fighting') {
+                    ctx.rotate(Math.sin(this.animationProgress * Math.PI * 8) * 0.3);
+                    drawSize *= 1 + Math.sin(this.animationProgress * Math.PI * 4) * 0.2;
+                } else if (this.animationState === 'eating') {
+                    drawSize *= 1 + this.animationProgress * 0.3;
+                } else if (this.animationState === 'mating') {
+                    drawSize *= 1 + Math.sin(this.animationProgress * Math.PI * 2) * 0.2;
+                }
+
+                // Draw body
                 ctx.beginPath();
                 ctx.arc(0, 0, drawSize, 0, Math.PI * 2);
                 ctx.fill();
+                ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+                ctx.lineWidth = 2;
                 ctx.stroke();
 
                 // Draw eyes
                 ctx.fillStyle = 'white';
                 ctx.beginPath();
-                ctx.arc(-5, -5, 4, 0, Math.PI * 2);
-                ctx.arc(5, -5, 4, 0, Math.PI * 2);
+                ctx.arc(-size * 0.3, -size * 0.3, size * 0.25, 0, Math.PI * 2);
+                ctx.arc(size * 0.3, -size * 0.3, size * 0.25, 0, Math.PI * 2);
                 ctx.fill();
 
                 ctx.fillStyle = 'black';
                 ctx.beginPath();
-                ctx.arc(-5, -5, 2, 0, Math.PI * 2);
-                ctx.arc(5, -5, 2, 0, Math.PI * 2);
+                ctx.arc(-size * 0.3, -size * 0.3, size * 0.15, 0, Math.PI * 2);
+                ctx.arc(size * 0.3, -size * 0.3, size * 0.15, 0, Math.PI * 2);
                 ctx.fill();
+
+                // Draw animation icons
+                if (this.animationState === 'fighting') {
+                    ctx.font = '20px Arial';
+                    ctx.fillText('💥', drawSize, -drawSize);
+                } else if (this.animationState === 'eating') {
+                    ctx.font = '20px Arial';
+                    ctx.fillText('🍖', drawSize, -drawSize);
+                } else if (this.animationState === 'mating') {
+                    ctx.font = '20px Arial';
+                    ctx.fillText('💕', drawSize, -drawSize);
+                }
 
                 ctx.restore();
             }
-        }
 
-        // Evolution Algorithm
-        class Individual {
-            constructor(genome) {
-                this.genome = genome;
-                this.fitness = 0;
+            distanceTo(other) {
+                const dx = this.x - other.x;
+                const dy = this.y - other.y;
+                return Math.sqrt(dx * dx + dy * dy);
             }
         }
 
-        class EvolutionAlgorithm {
-            constructor(config) {
-                this.config = config;
-                this.population = [];
-                this.creatures = [];
-                this.generation = 0;
-                this.bestIndividual = null;
-                this.history = { bestFitness: [], avgFitness: [], generation: [] };
+        // Simulation Manager
+        class Simulation {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.actors = [];
                 this.running = false;
-            }
-
-            initialize(genomeFactory, canvasWidth, canvasHeight) {
-                this.population = [];
-                this.creatures = [];
-                for (let i = 0; i < this.config.populationSize; i++) {
-                    const genome = genomeFactory();
-                    this.population.push(new Individual(genome));
-
-                    const x = Math.random() * (canvasWidth - 60) + 30;
-                    const y = Math.random() * (canvasHeight - 60) + 30;
-                    this.creatures.push(new Creature(genome, x, y));
-                }
-                this.generation = 0;
-                this.history = { bestFitness: [], avgFitness: [], generation: [] };
-            }
-
-            evaluateFitness(fitnessFunc) {
-                for (let i = 0; i < this.population.length; i++) {
-                    const fitness = fitnessFunc(this.population[i].genome);
-                    this.population[i].fitness = fitness;
-                    this.creatures[i].fitness = fitness;
-                }
-                this.population.sort((a, b) => b.fitness - a.fitness);
-
-                if (!this.bestIndividual || this.population[0].fitness > this.bestIndividual.fitness) {
-                    this.bestIndividual = new Individual(
-                        JSON.parse(JSON.stringify(this.population[0].genome))
-                    );
-                    this.bestIndividual.fitness = this.population[0].fitness;
-                }
-            }
-
-            selectTournament() {
-                let best = null;
-                let bestIdx = -1;
-                for (let i = 0; i < 3; i++) {
-                    const idx = Math.floor(Math.random() * this.population.length);
-                    const ind = this.population[idx];
-                    if (!best || ind.fitness > best.fitness) {
-                        best = ind;
-                        bestIdx = idx;
-                    }
-                }
-                return { individual: best, index: bestIdx };
-            }
-
-            async evolveGeneration(fitnessFunc, mutateFunc, crossoverFunc, callback, animationSpeed) {
-                this.evaluateFitness(fitnessFunc);
-
-                // Eating animation
-                if (animationSpeed > 0) {
-                    for (let creature of this.creatures) {
-                        creature.animationState = 'eating';
-                        creature.animationProgress = 0;
-                    }
-                    await this.animateCreatures(30, animationSpeed);
-                    addLog('🍽️ Creatures evaluated fitness (eating)', 'evolve');
-                }
-
-                const fitnesses = this.population.map(ind => ind.fitness);
-                const stats = {
-                    generation: this.generation,
-                    bestFitness: Math.max(...fitnesses),
-                    avgFitness: fitnesses.reduce((a, b) => a + b, 0) / fitnesses.length,
-                    bestGenome: this.bestIndividual.genome
+                this.speed = 2;
+                this.stats = {
+                    generation: 0,
+                    fights: 0,
+                    births: 0
                 };
-
-                this.history.generation.push(this.generation);
-                this.history.bestFitness.push(stats.bestFitness);
-                this.history.avgFitness.push(stats.avgFitness);
-
-                if (callback) {
-                    await callback(stats);
-                }
-
-                // Create new population
-                const newPopulation = [];
-                const newCreatures = [];
-
-                // Elitism
-                for (let i = 0; i < 2 && i < this.population.length; i++) {
-                    newPopulation.push(new Individual(
-                        JSON.parse(JSON.stringify(this.population[i].genome))
-                    ));
-                    const creature = new Creature(
-                        this.population[i].genome,
-                        this.creatures[i].x,
-                        this.creatures[i].y
-                    );
-                    creature.fitness = this.population[i].fitness;
-                    newCreatures.push(creature);
-                }
-
-                // Generate offspring with animations
-                while (newPopulation.length < this.config.populationSize) {
-                    const parent1 = this.selectTournament();
-                    const parent2 = this.selectTournament();
-
-                    // Fighting animation
-                    if (animationSpeed > 0 && newPopulation.length % 5 === 0) {
-                        this.creatures[parent1.index].animationState = 'fighting';
-                        this.creatures[parent2.index].animationState = 'fighting';
-                        await this.animateCreatures(20, animationSpeed);
-                        addLog(`💥 Creature ${parent1.index} vs ${parent2.index} - Selection battle!`, 'fight');
-                    }
-
-                    // Crossover
-                    let child1Genome, child2Genome;
-                    if (Math.random() < this.config.crossoverRate) {
-                        [child1Genome, child2Genome] = crossoverFunc(parent1.individual.genome, parent2.individual.genome);
-
-                        // Mating animation
-                        if (animationSpeed > 0 && newPopulation.length % 5 === 0) {
-                            this.creatures[parent1.index].animationState = 'mating';
-                            this.creatures[parent2.index].animationState = 'mating';
-                            await this.animateCreatures(20, animationSpeed);
-                            addLog(`💖 Creatures ${parent1.index} and ${parent2.index} mated!`, 'mate');
-                        }
-                    } else {
-                        child1Genome = parent1.individual.genome;
-                        child2Genome = parent2.individual.genome;
-                    }
-
-                    // Mutation
-                    const mutated1 = Math.random() < this.config.mutationRate;
-                    const mutated2 = Math.random() < this.config.mutationRate;
-
-                    if (mutated1) child1Genome = mutateFunc(child1Genome);
-                    if (mutated2) child2Genome = mutateFunc(child2Genome);
-
-                    newPopulation.push(new Individual(child1Genome));
-                    const x1 = Math.random() * 700 + 50;
-                    const y1 = Math.random() * 400 + 50;
-                    const creature1 = new Creature(child1Genome, x1, y1);
-                    if (mutated1 && animationSpeed > 0) {
-                        creature1.animationState = 'mutating';
-                        addLog(`✨ New creature mutated!`, 'mutate');
-                    }
-                    newCreatures.push(creature1);
-
-                    if (newPopulation.length < this.config.populationSize) {
-                        newPopulation.push(new Individual(child2Genome));
-                        const x2 = Math.random() * 700 + 50;
-                        const y2 = Math.random() * 400 + 50;
-                        const creature2 = new Creature(child2Genome, x2, y2);
-                        if (mutated2 && animationSpeed > 0) {
-                            creature2.animationState = 'mutating';
-                        }
-                        newCreatures.push(creature2);
-                    }
-                }
-
-                this.population = newPopulation.slice(0, this.config.populationSize);
-                this.creatures = newCreatures.slice(0, this.config.populationSize);
-                this.generation++;
-
-                return stats;
+                this.animationFrame = null;
             }
 
-            async animateCreatures(frames, speed) {
-                const delay = [800, 400, 200, 100, 0][speed];
-                if (delay === 0) return;
+            init(population, maleRatio) {
+                this.actors = [];
+                this.stats = { generation: 0, fights: 0, births: 0 };
 
-                for (let i = 0; i < frames; i++) {
-                    for (let creature of this.creatures) {
-                        creature.update();
-                    }
-                    await new Promise(resolve => setTimeout(resolve, delay / frames));
+                for (let i = 0; i < population; i++) {
+                    const x = 50 + Math.random() * (this.canvas.width - 100);
+                    const y = 50 + Math.random() * (this.canvas.height - 100);
+                    const gender = Math.random() < maleRatio / 100 ? 'male' : 'female';
+                    this.actors.push(new Actor(x, y, gender));
                 }
+
+                addLog(`🌱 Simulation initialized with ${population} actors`, 'birth');
             }
 
-            async run(fitnessFunc, mutateFunc, crossoverFunc, genomeFactory, callback, canvasWidth, canvasHeight, animationSpeed) {
-                this.initialize(genomeFactory, canvasWidth, canvasHeight);
+            start() {
                 this.running = true;
-
-                for (let gen = 0; gen < this.config.maxGenerations && this.running; gen++) {
-                    await this.evolveGeneration(fitnessFunc, mutateFunc, crossoverFunc, callback, animationSpeed);
-                }
-
-                return this.bestIndividual;
+                this.loop();
             }
 
             stop() {
                 this.running = false;
-            }
-        }
-
-        // Problem implementations (same as before)
-        const problems = {
-            string: {
-                charset: ' ABCDEFGHIJKLMNOPQRSTUVWXYZ!?',
-                target: 'HELLO WORLD',
-
-                createGenome() {
-                    let genome = '';
-                    for (let i = 0; i < this.target.length; i++) {
-                        genome += this.charset[Math.floor(Math.random() * this.charset.length)];
-                    }
-                    return genome;
-                },
-
-                fitness(genome) {
-                    let score = 0;
-                    for (let i = 0; i < genome.length; i++) {
-                        if (genome[i] === this.target[i]) score++;
-                    }
-                    return score / this.target.length;
-                },
-
-                mutate(genome) {
-                    const arr = genome.split('');
-                    const idx = Math.floor(Math.random() * arr.length);
-                    arr[idx] = this.charset[Math.floor(Math.random() * this.charset.length)];
-                    return arr.join('');
-                },
-
-                crossover(g1, g2) {
-                    const point = Math.floor(Math.random() * (g1.length - 1)) + 1;
-                    return [
-                        g1.slice(0, point) + g2.slice(point),
-                        g2.slice(0, point) + g1.slice(point)
-                    ];
-                },
-
-                maxFitness() { return 1; }
-            },
-
-            binary: {
-                length: 50,
-
-                createGenome() {
-                    return Array.from({length: this.length}, () => Math.random() < 0.5 ? 0 : 1);
-                },
-
-                fitness(genome) {
-                    return genome.reduce((sum, bit) => sum + bit, 0) / this.length;
-                },
-
-                mutate(genome) {
-                    const copy = [...genome];
-                    const idx = Math.floor(Math.random() * copy.length);
-                    copy[idx] = 1 - copy[idx];
-                    return copy;
-                },
-
-                crossover(g1, g2) {
-                    const point = Math.floor(Math.random() * (g1.length - 1)) + 1;
-                    return [
-                        [...g1.slice(0, point), ...g2.slice(point)],
-                        [...g2.slice(0, point), ...g1.slice(point)]
-                    ];
-                },
-
-                maxFitness() { return 1; }
-            },
-
-            function: {
-                dimension: 2,
-                bounds: [-5, 5],
-
-                createGenome() {
-                    return Array.from({length: this.dimension},
-                        () => Math.random() * (this.bounds[1] - this.bounds[0]) + this.bounds[0]);
-                },
-
-                fitness(genome) {
-                    const sum = genome.reduce((acc, x) => acc + x * x, 0);
-                    return 1 / (1 + sum); // Normalize to 0-1
-                },
-
-                mutate(genome) {
-                    const copy = [...genome];
-                    const idx = Math.floor(Math.random() * copy.length);
-                    copy[idx] += (Math.random() - 0.5) * 2;
-                    copy[idx] = Math.max(this.bounds[0], Math.min(this.bounds[1], copy[idx]));
-                    return copy;
-                },
-
-                crossover(g1, g2) {
-                    const alpha = Math.random();
-                    return [
-                        g1.map((x, i) => alpha * x + (1 - alpha) * g2[i]),
-                        g1.map((x, i) => (1 - alpha) * x + alpha * g2[i])
-                    ];
-                },
-
-                maxFitness() { return 1; }
-            }
-        };
-
-        // Canvas rendering
-        let canvas, ctx, evolution, chart;
-        let animationFrameId;
-
-        function initCanvas() {
-            canvas = document.getElementById('worldCanvas');
-            ctx = canvas.getContext('2d');
-            canvas.width = 800;
-            canvas.height = 500;
-        }
-
-        function renderWorld() {
-            ctx.fillStyle = 'rgba(135, 206, 235, 0.3)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            if (evolution && evolution.creatures) {
-                for (let creature of evolution.creatures) {
-                    creature.draw(ctx);
+                if (this.animationFrame) {
+                    cancelAnimationFrame(this.animationFrame);
                 }
             }
 
-            if (evolution && evolution.running) {
-                animationFrameId = requestAnimationFrame(renderWorld);
-            }
-        }
+            loop() {
+                if (!this.running) return;
 
-        function initChart() {
-            const chartCtx = document.getElementById('fitnessChart').getContext('2d');
-            chart = new Chart(chartCtx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Best Fitness',
-                        data: [],
-                        borderColor: 'rgb(102, 126, 234)',
-                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }, {
-                        label: 'Average Fitness',
-                        data: [],
-                        borderColor: 'rgb(118, 75, 162)',
-                        backgroundColor: 'rgba(118, 75, 162, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: true, position: 'top' }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, max: 1, title: { display: true, text: 'Fitness' }},
-                        x: { title: { display: true, text: 'Generation' }}
+                this.update();
+                this.draw();
+
+                this.animationFrame = requestAnimationFrame(() => this.loop());
+            }
+
+            update() {
+                // Update all actors
+                for (let actor of this.actors) {
+                    if (actor.alive) {
+                        actor.update(this.canvas.width, this.canvas.height, this.speed);
                     }
                 }
-            });
-        }
 
-        function updateChart(generation, bestFitness, avgFitness) {
-            chart.data.labels.push(generation);
-            chart.data.datasets[0].data.push(bestFitness);
-            chart.data.datasets[1].data.push(avgFitness);
+                // Check interactions
+                this.checkInteractions();
 
-            if (chart.data.labels.length > 50) {
-                chart.data.labels.shift();
-                chart.data.datasets[0].data.shift();
-                chart.data.datasets[1].data.shift();
+                // Remove dead actors
+                this.actors = this.actors.filter(a => a.alive);
+
+                // Update stats
+                this.updateStats();
             }
 
-            chart.update('none');
-        }
+            checkInteractions() {
+                const interactionDistance = 30;
 
-        function displaySolution(genome, problemType) {
-            const display = document.getElementById('bestSolution');
+                for (let i = 0; i < this.actors.length; i++) {
+                    const actor1 = this.actors[i];
+                    if (!actor1.alive || actor1.animationState !== 'idle') continue;
 
-            if (problemType === 'string') {
-                display.textContent = genome;
-            } else if (problemType === 'binary') {
-                const str = genome.join('');
-                display.textContent = str.length > 80 ? str.slice(0, 80) + '...' : str;
-            } else if (problemType === 'function') {
-                display.textContent = `[${genome.map(x => x.toFixed(4)).join(', ')}]`;
+                    for (let j = i + 1; j < this.actors.length; j++) {
+                        const actor2 = this.actors[j];
+                        if (!actor2.alive || actor2.animationState !== 'idle') continue;
+
+                        const distance = actor1.distanceTo(actor2);
+
+                        if (distance < interactionDistance) {
+                            // Male meets male = fight
+                            if (actor1.gender === 'male' && actor2.gender === 'male') {
+                                this.fight(actor1, actor2);
+                            }
+                            // Male meets female = reproduce
+                            else if ((actor1.gender === 'male' && actor2.gender === 'female') ||
+                                     (actor1.gender === 'female' && actor2.gender === 'male')) {
+                                this.reproduce(actor1, actor2);
+                            }
+                        }
+                    }
+                }
+            }
+
+            fight(actor1, actor2) {
+                // Calculate fight outcome based on strength and aggression
+                const power1 = actor1.strength * actor1.aggression;
+                const power2 = actor2.strength * actor2.aggression;
+
+                const winner = power1 > power2 ? actor1 : actor2;
+                const loser = power1 > power2 ? actor2 : actor1;
+
+                // Animations
+                winner.animationState = 'fighting';
+                winner.animationProgress = 0;
+                loser.animationState = 'fighting';
+                loser.animationProgress = 0;
+
+                // Winner eats loser and gains strength
+                setTimeout(() => {
+                    if (winner.alive) {
+                        winner.animationState = 'eating';
+                        winner.animationProgress = 0;
+                        winner.strength = Math.min(1.5, winner.strength + loser.strength * 0.5);
+                        winner.energy = Math.min(100, winner.energy + 50);
+                    }
+                    loser.alive = false;
+
+                    this.stats.fights++;
+                    addLog(`💥 Fight! Winner gains strength (${winner.strength.toFixed(2)})`, 'fight');
+                    addLog(`☠️ Actor died in battle`, 'death');
+                }, this.speed === 0 ? 1000 : 300);
+            }
+
+            reproduce(actor1, actor2) {
+                const male = actor1.gender === 'male' ? actor1 : actor2;
+                const female = actor1.gender === 'female' ? actor1 : actor2;
+
+                // Check fertility
+                if (Math.random() > (male.fertility + female.fertility) / 2) {
+                    return; // Failed to reproduce
+                }
+
+                // Animations
+                male.animationState = 'mating';
+                male.animationProgress = 0;
+                female.animationState = 'mating';
+                female.animationProgress = 0;
+
+                // Create offspring
+                setTimeout(() => {
+                    const childGender = Math.random() < 0.5 ? 'male' : 'female';
+                    const child = new Actor(
+                        (male.x + female.x) / 2 + (Math.random() - 0.5) * 40,
+                        (male.y + female.y) / 2 + (Math.random() - 0.5) * 40,
+                        childGender
+                    );
+
+                    // Inherit traits with some mutation
+                    child.strength = (male.strength + female.strength) / 2 + (Math.random() - 0.5) * 0.2;
+                    child.speed = (male.speed + female.speed) / 2 + (Math.random() - 0.5) * 0.2;
+                    child.fertility = (male.fertility + female.fertility) / 2 + (Math.random() - 0.5) * 0.2;
+                    child.aggression = (male.aggression + female.aggression) / 2 + (Math.random() - 0.5) * 0.2;
+
+                    // Clamp values
+                    child.strength = Math.max(0.1, Math.min(1.5, child.strength));
+                    child.speed = Math.max(0.3, Math.min(1.2, child.speed));
+                    child.fertility = Math.max(0.1, Math.min(1.0, child.fertility));
+                    child.aggression = Math.max(0.1, Math.min(1.0, child.aggression));
+
+                    child.generation = Math.max(male.generation, female.generation) + 1;
+
+                    this.actors.push(child);
+                    this.stats.births++;
+
+                    addLog(`👶 New ${childGender} born! Gen: ${child.generation}`, 'birth');
+                }, this.speed === 0 ? 1500 : 500);
+            }
+
+            draw() {
+                // Clear canvas
+                const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+                gradient.addColorStop(0, '#87ceeb');
+                gradient.addColorStop(1, '#228b22');
+                this.ctx.fillStyle = gradient;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Draw all actors
+                for (let actor of this.actors) {
+                    actor.draw(this.ctx);
+                }
+
+                // Draw population count
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                this.ctx.fillRect(10, 10, 200, 40);
+                this.ctx.fillStyle = 'white';
+                this.ctx.font = 'bold 20px Arial';
+                this.ctx.fillText(`Population: ${this.actors.length}`, 20, 35);
+            }
+
+            updateStats() {
+                document.getElementById('totalPopulation').textContent = this.actors.length;
+                document.getElementById('maleCount').textContent = this.actors.filter(a => a.gender === 'male').length;
+                document.getElementById('femaleCount').textContent = this.actors.filter(a => a.gender === 'female').length;
+                document.getElementById('generationCount').textContent = Math.max(...this.actors.map(a => a.generation), 0);
+                document.getElementById('fightCount').textContent = this.stats.fights;
+                document.getElementById('birthCount').textContent = this.stats.births;
             }
         }
 
+        // Log system
         let logEntries = [];
         function addLog(message, type) {
-            const logDiv = document.getElementById('logEntries');
-            logEntries.unshift({ message, type });
-            if (logEntries.length > 20) logEntries.pop();
+            const logContainer = document.getElementById('logContainer');
+            const timestamp = new Date().toLocaleTimeString();
 
-            logDiv.innerHTML = logEntries.map(entry =>
-                `<div class="action-log-entry action-${entry.type}">${entry.message}</div>`
+            logEntries.unshift({ message: `[${timestamp}] ${message}`, type });
+            if (logEntries.length > 50) logEntries.pop();
+
+            logContainer.innerHTML = logEntries.map(entry =>
+                `<div class="log-entry log-${entry.type}">${entry.message}</div>`
             ).join('');
         }
 
-        async function runEvolution() {
-            const problemType = document.getElementById('problemType').value;
-            const problem = problems[problemType];
-
-            if (problemType === 'string') {
-                problem.target = document.getElementById('targetString').value.toUpperCase();
-            } else if (problemType === 'binary') {
-                problem.length = parseInt(document.getElementById('binaryLength').value);
-            } else if (problemType === 'function') {
-                problem.dimension = parseInt(document.getElementById('dimension').value);
-            }
-
-            const config = {
-                populationSize: parseInt(document.getElementById('populationSize').value),
-                maxGenerations: parseInt(document.getElementById('maxGenerations').value),
-                mutationRate: parseFloat(document.getElementById('mutationRate').value),
-                crossoverRate: parseFloat(document.getElementById('crossoverRate').value),
-                elitism: 2,
-                selectionMethod: 'tournament'
-            };
-
-            const speed = parseInt(document.getElementById('speedControl').value);
-
-            // Reset
-            chart.data.labels = [];
-            chart.data.datasets[0].data = [];
-            chart.data.datasets[1].data = [];
-            chart.update();
-            logEntries = [];
-            document.getElementById('logEntries').innerHTML = '';
-
-            document.getElementById('runBtn').style.display = 'none';
-            document.getElementById('stopBtn').style.display = 'block';
-
-            evolution = new EvolutionAlgorithm(config);
-            addLog(`🚀 Starting evolution with ${config.populationSize} creatures!`, 'evolve');
-
-            const callback = async (stats) => {
-                document.getElementById('genStat').textContent = stats.generation;
-                document.getElementById('bestFitnessStat').textContent = (stats.bestFitness * 100).toFixed(1) + '%';
-                document.getElementById('avgFitnessStat').textContent = (stats.avgFitness * 100).toFixed(1) + '%';
-
-                const progress = (stats.generation / config.maxGenerations) * 100;
-                document.getElementById('progressBar').style.width = progress + '%';
-                document.getElementById('progressBar').textContent = Math.round(progress) + '%';
-
-                const successPct = (stats.bestFitness * 100).toFixed(0);
-                document.getElementById('progressStat').textContent = successPct + '%';
-
-                displaySolution(stats.bestGenome, problemType);
-                updateChart(stats.generation, stats.bestFitness, stats.avgFitness);
-
-                if (stats.generation % 10 === 0) {
-                    addLog(`📊 Generation ${stats.generation}: Best ${(stats.bestFitness * 100).toFixed(1)}%`, 'evolve');
-                }
-            };
-
-            renderWorld();
-
-            await evolution.run(
-                problem.fitness.bind(problem),
-                problem.mutate.bind(problem),
-                problem.crossover.bind(problem),
-                problem.createGenome.bind(problem),
-                callback,
-                canvas.width,
-                canvas.height,
-                speed
-            );
-
-            document.getElementById('runBtn').style.display = 'block';
-            document.getElementById('stopBtn').style.display = 'none';
-            addLog(`🏁 Evolution complete! Best fitness: ${(evolution.bestIndividual.fitness * 100).toFixed(1)}%`, 'evolve');
-        }
-
-        function stopEvolution() {
-            if (evolution) {
-                evolution.stop();
-            }
-            document.getElementById('runBtn').style.display = 'block';
-            document.getElementById('stopBtn').style.display = 'none';
-            addLog('⏹️ Evolution stopped by user', 'evolve');
-        }
-
-        // Event Listeners
-        document.getElementById('runBtn').addEventListener('click', runEvolution);
-        document.getElementById('stopBtn').addEventListener('click', stopEvolution);
-
-        document.getElementById('problemType').addEventListener('change', (e) => {
-            document.getElementById('stringConfig').style.display = e.target.value === 'string' ? 'block' : 'none';
-            document.getElementById('binaryConfig').style.display = e.target.value === 'binary' ? 'block' : 'none';
-            document.getElementById('functionConfig').style.display = e.target.value === 'function' ? 'block' : 'none';
-        });
-
-        document.getElementById('speedControl').addEventListener('input', (e) => {
-            const labels = ['🐌 Slow (See Every Action)', '🚶 Normal (Smooth)', '🏃 Fast (Quick)', '🚀 Turbo (Very Fast)', '⚡ Instant (No Animation)'];
-            document.getElementById('speedLabel').textContent = labels[e.target.value];
-        });
-
-        // Update value displays
-        const sliders = [
-            ['populationSize', 'popSizeVal'],
-            ['maxGenerations', 'maxGensVal'],
-            ['mutationRate', 'mutationVal'],
-            ['crossoverRate', 'crossoverVal'],
-            ['binaryLength', 'binaryLengthVal'],
-            ['dimension', 'dimensionVal']
-        ];
-
-        sliders.forEach(([sliderId, displayId]) => {
-            const slider = document.getElementById(sliderId);
-            const display = document.getElementById(displayId);
-            if (slider && display) {
-                slider.addEventListener('input', (e) => {
-                    display.textContent = e.target.value;
-                });
-            }
-        });
-
         // Initialize
-        window.addEventListener('load', () => {
-            initCanvas();
-            initChart();
-            addLog('👋 Welcome! Configure settings and click START EVOLUTION', 'evolve');
+        const canvas = document.getElementById('worldCanvas');
+        const sim = new Simulation(canvas);
+
+        // Event listeners
+        document.getElementById('startBtn').addEventListener('click', () => {
+            if (!sim.running) {
+                if (sim.actors.length === 0) {
+                    const pop = parseInt(document.getElementById('initPop').value);
+                    const ratio = parseInt(document.getElementById('maleRatio').value);
+                    sim.init(pop, ratio);
+                }
+                sim.start();
+                document.getElementById('startBtn').style.display = 'none';
+                document.getElementById('stopBtn').style.display = 'block';
+                addLog('▶️ Simulation started', 'birth');
+            }
         });
+
+        document.getElementById('stopBtn').addEventListener('click', () => {
+            sim.stop();
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('stopBtn').style.display = 'none';
+            addLog('⏸️ Simulation paused', 'death');
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            sim.stop();
+            const pop = parseInt(document.getElementById('initPop').value);
+            const ratio = parseInt(document.getElementById('maleRatio').value);
+            sim.init(pop, ratio);
+            sim.draw();
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('stopBtn').style.display = 'none';
+            logEntries = [];
+            addLog('🔄 Simulation reset', 'birth');
+        });
+
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            sim.speed = parseInt(e.target.value);
+            const labels = ['🐌 Slow (Animated)', '🚶 Normal', '🏃 Fast', '🚀 Turbo', '⚡ Maximum Speed'];
+            document.getElementById('speedDisplay').textContent = labels[sim.speed];
+        });
+
+        // Config sliders
+        document.getElementById('initPop').addEventListener('input', (e) => {
+            document.getElementById('initPopValue').textContent = e.target.value;
+        });
+
+        document.getElementById('maleRatio').addEventListener('input', (e) => {
+            document.getElementById('maleRatioValue').textContent = e.target.value + '%';
+        });
+
+        // Initialize display
+        const pop = parseInt(document.getElementById('initPop').value);
+        const ratio = parseInt(document.getElementById('maleRatio').value);
+        sim.init(pop, ratio);
+        sim.draw();
     </script>
 </body>
 </html>
