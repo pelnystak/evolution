@@ -91,11 +91,11 @@ function drawWorld() {
     ctx.beginPath(); ctx.arc(food.x, food.y, 2.1, 0, Math.PI * 2); ctx.fill();
   }
   for (const agent of world.agents) {
-    const hue = 101 - (agent.speed - 0.7) / 1.15 * 65;
+    const lightness = 55 + (agent.speed - 0.7) / 1.15 * 24;
     const radius = 5.5 + agent.energy / 40;
-    ctx.fillStyle = `hsla(${hue}, 85%, 74%, .13)`;
+    ctx.fillStyle = `hsla(23, 85%, ${lightness}%, .13)`;
     ctx.beginPath(); ctx.arc(agent.x, agent.y, radius + 7, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = `hsl(${hue}, 84%, 71%)`;
+    ctx.fillStyle = `hsl(23, 84%, ${lightness}%)`;
     ctx.beginPath(); ctx.arc(agent.x, agent.y, radius, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = '#172321';
     ctx.beginPath(); ctx.arc(agent.x + Math.cos(agent.angle) * radius * .42, agent.y + Math.sin(agent.angle) * radius * .42, 1.5, 0, Math.PI * 2); ctx.fill();
