@@ -1,281 +1,48 @@
-# Evolution Algorithm Explorer 🧬
+# Evolution Field Lab
 
-An interactive implementation of genetic/evolution algorithms with a user-friendly interface, inspired by Andrzej Dragan's "Quo vAIdis".
+An interactive ecosystem for exploring natural selection. Creatures search for food, spend energy, reproduce, inherit traits with occasional mutation, and die from starvation or age. The live charts show how population, resources, speed, and sight change over time.
 
-## 🌐 Live Demo
+**Live app:** [pelnystak.github.io/evolution](https://pelnystak.github.io/evolution/)
 
-**Try it online:** [https://pelnystak.github.io/evolution/](https://pelnystak.github.io/evolution/)
+**Kudo Lab:** [paweljedrzejewski.pl/evolution](https://paweljedrzejewski.pl/evolution/)
 
-No installation required - works directly in your browser!
+## Explore
 
-> **Note:** If the link doesn't work yet, see [GITHUB_PAGES_SETUP.md](GITHUB_PAGES_SETUP.md) for quick setup instructions (takes 2 minutes).
+1. Start the simulation or advance one step at a time.
+2. Change food supply and mutation chance while it runs.
+3. Change the starting population or random seed, then reset.
+4. Compare the population and trait charts across runs. The same seed and settings produce the same sequence of outcomes.
 
-## 🚀 Quick Start Options
+The browser app has no runtime dependencies. Serve the repository locally because ES modules do not load consistently from a `file://` URL:
 
-### Option 1: Pure Frontend (No Installation Required!) 🌐
-
-Simply open `index.html` in your browser - no installation, no dependencies!
-
-**Features:**
-- Pure HTML/CSS/JavaScript - runs entirely in browser
-- No backend server needed
-- Interactive charts with Chart.js
-- Beautiful responsive UI with Bootstrap
-- Instant startup
-
-**Just double-click `index.html` or run:**
 ```bash
-open index.html  # macOS
-xdg-open index.html  # Linux
-start index.html  # Windows
+python3 -m http.server 8000
 ```
 
-### Option 2: Python/Streamlit Version (Full Features) 🐍
+Open `http://localhost:8000`.
 
-More powerful version with additional analysis tools.
+## Model
 
-## Features
+The world advances in fixed steps. Each creature has a speed and a sight trait. It moves toward visible food or wanders, spends energy on movement and sensing, and gains energy when it eats. Adults with enough energy can reproduce; each newborn inherits its parent's traits with a configurable chance of mutation. Creatures die when energy reaches zero or they reach old age.
 
-- **Interactive UI**: Both Streamlit and pure frontend versions
-- **Multiple Problem Types**:
-  - String Matching: Evolve a string to match a target
-  - Function Optimization: Minimize mathematical functions (Sphere, Rastrigin)
-  - Binary Optimization: Solve the OneMax problem
-- **Real-time Visualization**: Watch evolution progress with live charts
-- **Configurable Parameters**: Control all aspects of the evolution process
-- **Statistical Analysis**: Track fitness, diversity, and convergence
-- **Pure Frontend Option**: No installation required!
+Food regrows at a configurable rate. Population and food have explicit caps so long runs stay responsive. These rules make selection visible; they are a simplified educational model, not a biological prediction.
 
-## Installation (Python Version Only)
+| File | Purpose |
+| --- | --- |
+| `index.html` | Interface and explanation |
+| `style.css` | Kudo Lab visual design and responsive layout |
+| `simulation.mjs` | Seeded, deterministic ecosystem model |
+| `app.js` | Canvas rendering, charts, and controls |
 
-1. Clone or navigate to this repository:
+## Python experiments
+
+The repository also contains a separate Python genetic algorithm explorer. It demonstrates optimization problems such as string matching and function optimization. It is not the engine behind the browser ecosystem.
+
 ```bash
-cd evolution
-```
-
-2. Install dependencies:
-```bash
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
-```
-
-## Usage
-
-### Running the Application
-
-Start the Streamlit app:
-```bash
 streamlit run app.py
 ```
 
-The application will open in your default web browser (usually at `http://localhost:8501`).
-
-### Using the Interface
-
-1. **Select Problem Type**: Choose from String Matching, Function Optimization, or Binary Optimization
-2. **Configure Parameters**:
-   - **Population Size**: Number of individuals per generation (10-500)
-   - **Max Generations**: How many generations to evolve (10-1000)
-   - **Mutation Rate**: Probability of random changes (0.0-1.0)
-   - **Crossover Rate**: Probability of combining parents (0.0-1.0)
-   - **Selection Method**: Tournament or Roulette wheel selection
-   - **Elitism Count**: Number of best individuals preserved each generation
-3. **Configure Problem**: Set problem-specific parameters
-4. **Click "Run Evolution"**: Watch the algorithm work in real-time!
-
-## Algorithm Parameters Explained
-
-### Core Parameters
-
-- **Population Size**: Larger populations explore more solutions but are slower
-  - Small (10-50): Fast but may miss optimal solutions
-  - Medium (50-200): Good balance
-  - Large (200-500): Thorough exploration
-
-- **Mutation Rate**: Controls exploration vs exploitation
-  - Low (0.01-0.05): Fine-tuning existing solutions
-  - Medium (0.05-0.2): Balanced exploration
-  - High (0.2+): High exploration, may be unstable
-
-- **Crossover Rate**: Probability of combining parent genes
-  - Typical range: 0.6-0.9
-  - Higher values emphasize recombination
-
-- **Elitism**: Preserving best individuals
-  - 0: Pure evolution (may lose good solutions)
-  - 1-5: Recommended for most problems
-  - Higher: More exploitation, less exploration
-
-### Selection Methods
-
-- **Tournament Selection**: Randomly select N individuals, choose the best
-  - Tournament Size 2-3: More diversity
-  - Tournament Size 5+: Stronger selection pressure
-
-- **Roulette Wheel Selection**: Probability proportional to fitness
-  - Good for problems with varying fitness scales
-  - May converge faster but less diverse
-
-## Problem Types
-
-### 1. String Matching
-Evolve a random string to match a target string.
-
-**Use Case**: Demonstrates basic genetic algorithm concepts
-
-**Parameters**:
-- Target String: The string to evolve towards
-
-**Tips**:
-- Longer strings require more generations
-- High mutation rate (0.1-0.2) works well
-
-### 2. Function Optimization (Sphere)
-Minimize the sphere function: f(x) = x₁² + x₂² + ... + xₙ²
-
-**Use Case**: Simple convex optimization
-
-**Parameters**:
-- Dimension: Number of variables (2-10)
-- Bounds: Search space range
-
-**Tips**:
-- Global optimum is at origin (0, 0, ..., 0)
-- Converges quickly with proper parameters
-
-### 3. Function Optimization (Rastrigin)
-Minimize the Rastrigin function (many local minima)
-
-**Use Case**: Complex optimization with many local optima
-
-**Parameters**:
-- Dimension: Number of variables
-- Bounds: Typically [-5.12, 5.12]
-
-**Tips**:
-- Harder problem with many local minima
-- Requires larger population and more generations
-- Higher mutation rate helps escape local minima
-
-### 4. Binary Optimization (OneMax)
-Maximize the number of 1s in a binary string
-
-**Use Case**: Classic benchmark problem
-
-**Parameters**:
-- Binary String Length: Size of the problem
-
-**Tips**:
-- Easy problem, converges quickly
-- Good for testing algorithm parameters
-
-## Code Structure
-
-```
-evolution/
-├── index.html          # 🌐 Pure frontend version (standalone, no dependencies!)
-├── evolution.py        # Core algorithm implementation (Python)
-│   ├── EvolutionConfig  # Configuration dataclass
-│   ├── Individual       # Represents a single solution
-│   ├── EvolutionAlgorithm # Main algorithm class
-│   └── Problem classes  # Example problems
-├── app.py              # Streamlit UI application (Python)
-├── example.py          # Command-line examples (Python)
-├── requirements.txt    # Python dependencies
-└── README.md          # This file
-```
-
-## Customizing for Your Own Problems
-
-To solve your own optimization problem:
-
-1. Create a problem class with these methods:
-```python
-class MyProblem:
-    def create_genome(self):
-        # Return a random solution
-        pass
-
-    def fitness(self, genome):
-        # Return fitness score (higher is better)
-        pass
-
-    def mutate(self, genome):
-        # Return mutated version of genome
-        pass
-
-    def crossover(self, genome1, genome2):
-        # Return two child genomes
-        pass
-```
-
-2. Add your problem to the app.py interface
-
-3. Configure parameters and run!
-
-## Examples
-
-### Example 1: Evolving "Hello World"
-- Problem: String Matching
-- Target: "Hello World"
-- Population: 100
-- Generations: 50
-- Mutation Rate: 0.1
-- Result: Usually converges in 30-40 generations
-
-### Example 2: Finding Minimum of Sphere Function
-- Problem: Function Optimization (Sphere)
-- Dimension: 2
-- Bounds: [-10, 10]
-- Population: 50
-- Generations: 100
-- Mutation Rate: 0.05
-- Result: Converges to near [0, 0]
-
-## Theory
-
-### How Evolution Algorithms Work
-
-1. **Initialization**: Create random population of solutions
-2. **Evaluation**: Calculate fitness for each individual
-3. **Selection**: Choose better individuals as parents
-4. **Crossover**: Combine parent solutions to create offspring
-5. **Mutation**: Randomly modify offspring
-6. **Replacement**: Form new generation
-7. **Repeat**: Until convergence or max generations
-
-### When to Use Evolution Algorithms
-
-✅ Good for:
-- Complex search spaces
-- No gradient information available
-- Multiple local optima
-- Discrete/combinatorial problems
-- Black-box optimization
-
-❌ Not ideal for:
-- Simple convex optimization
-- When gradient-based methods work
-- Very high-dimensional problems (>100 variables)
-- Real-time applications (can be slow)
-
-## Performance Tips
-
-- **Start small**: Test with small populations and few generations
-- **Monitor diversity**: If diversity drops too quickly, increase mutation rate
-- **Adjust elitism**: Too much elitism = premature convergence
-- **Population size**: Roughly 10-100x the problem dimension
-- **Generations**: Start with 50-100, increase if not converging
-
-## Credits
-
-Inspired by the evolution algorithm described in **"Quo vAIdis"** by Andrzej Dragan, a book exploring artificial intelligence and computational methods.
-
-## License
-
-This implementation is provided for educational purposes.
-
-## Further Reading
-
-- "Quo vAIdis" by Andrzej Dragan
-- "Introduction to Evolutionary Computing" by Eiben & Smith
-- "Genetic Algorithms in Search, Optimization, and Machine Learning" by Goldberg
+The Python example can also run from the command line with `python example.py`.
